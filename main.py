@@ -18,7 +18,7 @@ class Game:
         for p in self.persons:
             p.show()
 
-        self.root.bind("<Key>", self.movement)
+        self.root.bind("<Key>",lambda e: self.persons[0].move(e.keysym))
         self.root.mainloop()
 
     def create_window(self):
@@ -37,27 +37,7 @@ class Game:
         self.persons.append(Person(self, False, [1, 4]))
         self.persons.append(Person(self, True, [6, 6]))
 
-    def movement(self, event):
-        k = event.keysym
-        # coord où on veut aller
-        j_test, i_test = self.persons[0].j, self.persons[0].i
-        if k in ("Up", "w"):
-            j_test = self.persons[0].j-1
-        elif k in ("Left", "a"):
-            i_test = self.persons[0].i-1
-        elif k in ("Down", "s"):
-            j_test = self.persons[0].j+1
-        elif k in ("Right", "d"):
-            i_test = self.persons[0].i+1
-
-        if self.check_movement(j_test, i_test):
-            self.persons[0].j, self.persons[0].i = j_test, i_test
-
-        for p in self.persons:
-            p.update()
-
-    def check_movement(self, j_test, i_test):
-        return 0 <= j_test < self.height and 0 <= i_test < self.width and not self.board.walls[j_test, i_test]
+    
 
 
 class Person():
@@ -76,6 +56,26 @@ class Person():
         r_size = self.game.r_size
         x, y = self.i * r_size, self.j * r_size
         self.game.c.moveto(self.shape, x, y)
+
+    def move(self, k):
+        # coord où on veut aller
+        j_test, i_test = self.j, self.i
+        if k in ("Up", "w"):
+            j_test = self.j-1
+        elif k in ("Left", "a"):
+            i_test = self.i-1
+        elif k in ("Down", "s"):
+            j_test = self.j+1
+        elif k in ("Right", "d"):
+            i_test = self.i+1
+
+        if self.check_movement(j_test, i_test):
+            self.j, self.i = j_test, i_test
+
+        self.update()
+
+    def check_movement(self, j_test, i_test):
+        return 0 <= j_test < self.game.height and 0 <= i_test < self.game.width and not self.game.board.walls[j_test, i_test]
 
 
 class Board:
