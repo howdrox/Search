@@ -37,8 +37,6 @@ class Game:
         self.persons.append(Person(self, False, [1, 4]))
         self.persons.append(Person(self, True, [6, 6]))
 
-    
-
 
 class Person():
     def __init__(self, game, evil, spawn_coord):
