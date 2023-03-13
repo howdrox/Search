@@ -15,11 +15,9 @@ class Game:
         self.board = Board(self)
         self.board.show_walls()
         self.create_entities()
-        for p in self.persons:
-            p.show()
+        for p in self.persons:p.show()
 
         self.root.bind("<Key>", self.movement)
-
         self.root.mainloop()
 
     def create_window(self):
@@ -35,51 +33,46 @@ class Game:
 
     def create_entities(self):
         self.persons = []
-        self.persons.append(Person(self.c, False, [1, 4], self.r_size))
-        self.persons.append(Person(self.c, True, [6, 6], self.r_size))
+        self.persons.append(Person(self, False, [1, 4]))
+        self.persons.append(Person(self, True, [6, 6]))
 
     def movement(self, event):
         k = event.keysym
-        if (k == "Up" or k == "w") and self.check(self.persons[0].coord, "w"):
-            self.persons[0].coord = [
-                self.persons[0].coord[0] - 1, self.persons[0].coord[1]]
-            self.c.move(self.persons[0].shape, 0, -self.r_size)
-        elif (k == "Left" or k == "a") and self.check(self.persons[0].coord, "a"):
-            self.persons[0].coord = [
-                self.persons[0].coord[0], self.persons[0].coord[1] - 1]
-            self.c.move(self.persons[0].shape, -self.r_size, 0)
-        elif (k == "Down" or k == "s") and self.check(self.persons[0].coord, "s"):
-            self.persons[0].coord = [
-                self.persons[0].coord[0] + 1, self.persons[0].coord[1]]
-            self.c.move(self.persons[0].shape, 0, self.r_size)
-        elif (k == "Right" or k == "d") and self.check(self.persons[0].coord, "d"):
-            self.persons[0].coord = [
-                self.persons[0].coord[0], self.persons[0].coord[1] + 1]
-            self.c.move(self.persons[0].shape, self.r_size, 0)
+        j_test,i_test=self.persons[0].j,self.persons[0].i #coord où on veut aller
+        if k in ("Up" ,"w") :
+            j_test=self.persons[0].j-1
+        elif k in ("Left" , "a"):
+            i_test=self.persons[0].i-1
+        elif k in ("Down" , "s"):
+            j_test=self.persons[0].j+1
+        elif k in ("Right" , "d"):
+            i_test=self.persons[0].i+1
 
-    def check(self, coord, k):
-        result = True
-        if k == "w" and (coord[0] == 0 or self.board.walls[coord[0] - 1, coord[1]]):
-            result = False
-        elif k == "a" and (coord[1] == 0 or self.board.walls[coord[0], coord[1] - 1]):
-            result = False
-        elif k == "s" and (coord[0] == self.height - 1 or self.board.walls[coord[0] + 1, coord[1]]):
-            result = False
-        elif k == "d" and (coord[1] == self.width - 1 or self.board.walls[coord[0], coord[1] + 1]):
-            result = False
-        return result
+        if self.check(j_test,i_test):
+            self.persons[0].j,self.persons[0].i=j_test,i_test
+        
+        for p in self.persons:p.update()
+
+    def check(self, j_test,i_test):
+        return  0<=j_test<self.height and 0<=i_test<self.width and not self.board.walls[j_test,i_test] 
+          
 
 
 class Person():
-    def __init__(self, canvas, evil, spawn_coord, r_size):
-        self.c = canvas
+    def __init__(self, game, evil, spawn_coord):
+        self.game=game
         self.evil = evil
-        self.coord = spawn_coord
-        self.r_size = r_size
+        self.j,self.i = spawn_coord
 
     def show(self):
-        self.shape = self.c.create_rectangle(self.coord[1] * self.r_size, self.coord[0] * self.r_size, self.coord[1]
-                                             * self.r_size + self.r_size, self.coord[0] * self.r_size + self.r_size, fill="red" if self.evil else "blue")
+        r_size=self.game.r_size
+        x, y = self.i * r_size, self.j * r_size
+        self.shape = self.game.c.create_rectangle(x, y, x + r_size, y + r_size, fill="red" if self.evil else "blue")
+
+    def update(self):
+        r_size=self.game.r_size
+        x, y = self.i * r_size, self.j * r_size
+        self.game.c.moveto(self.shape,x, y)
 
 
 class Board:
