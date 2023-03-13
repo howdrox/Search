@@ -50,13 +50,13 @@ class Game:
         elif k in ("Right", "d"):
             i_test = self.persons[0].i+1
 
-        if self.check(j_test, i_test):
+        if self.check_movement(j_test, i_test):
             self.persons[0].j, self.persons[0].i = j_test, i_test
 
         for p in self.persons:
             p.update()
 
-    def check(self, j_test, i_test):
+    def check_movement(self, j_test, i_test):
         return 0 <= j_test < self.height and 0 <= i_test < self.width and not self.board.walls[j_test, i_test]
 
 
