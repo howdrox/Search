@@ -86,9 +86,7 @@ class Board:
         self.create_walls()
 
     def create_walls(self):
-        with open("./data.json", "r") as f:
-            self.walls = np.array(json.load(f)["walls"])
-
+        self.walls=np.load('gamedata/walls.npy')
     # CODE POUR GENERER ALEATOIREMENT LA CARTE, NE PAS SUPPRIMER
 
     # def create_walls(self):
