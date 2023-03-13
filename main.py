@@ -15,7 +15,8 @@ class Game:
         self.board = Board(self)
         self.board.show_walls()
         self.create_entities()
-        for p in self.persons:p.show()
+        for p in self.persons:
+            p.show()
 
         self.root.bind("<Key>", self.movement)
         self.root.mainloop()
@@ -38,41 +39,43 @@ class Game:
 
     def movement(self, event):
         k = event.keysym
-        j_test,i_test=self.persons[0].j,self.persons[0].i #coord où on veut aller
-        if k in ("Up" ,"w") :
-            j_test=self.persons[0].j-1
-        elif k in ("Left" , "a"):
-            i_test=self.persons[0].i-1
-        elif k in ("Down" , "s"):
-            j_test=self.persons[0].j+1
-        elif k in ("Right" , "d"):
-            i_test=self.persons[0].i+1
+        # coord où on veut aller
+        j_test, i_test = self.persons[0].j, self.persons[0].i
+        if k in ("Up", "w"):
+            j_test = self.persons[0].j-1
+        elif k in ("Left", "a"):
+            i_test = self.persons[0].i-1
+        elif k in ("Down", "s"):
+            j_test = self.persons[0].j+1
+        elif k in ("Right", "d"):
+            i_test = self.persons[0].i+1
 
-        if self.check(j_test,i_test):
-            self.persons[0].j,self.persons[0].i=j_test,i_test
-        
-        for p in self.persons:p.update()
+        if self.check(j_test, i_test):
+            self.persons[0].j, self.persons[0].i = j_test, i_test
 
-    def check(self, j_test,i_test):
-        return  0<=j_test<self.height and 0<=i_test<self.width and not self.board.walls[j_test,i_test] 
-          
+        for p in self.persons:
+            p.update()
+
+    def check(self, j_test, i_test):
+        return 0 <= j_test < self.height and 0 <= i_test < self.width and not self.board.walls[j_test, i_test]
 
 
 class Person():
     def __init__(self, game, evil, spawn_coord):
-        self.game=game
+        self.game = game
         self.evil = evil
-        self.j,self.i = spawn_coord
+        self.j, self.i = spawn_coord
 
     def show(self):
-        r_size=self.game.r_size
+        r_size = self.game.r_size
         x, y = self.i * r_size, self.j * r_size
-        self.shape = self.game.c.create_rectangle(x, y, x + r_size, y + r_size, fill="red" if self.evil else "blue")
+        self.shape = self.game.c.create_rectangle(
+            x, y, x + r_size, y + r_size, fill="red" if self.evil else "blue")
 
     def update(self):
-        r_size=self.game.r_size
+        r_size = self.game.r_size
         x, y = self.i * r_size, self.j * r_size
-        self.game.c.moveto(self.shape,x, y)
+        self.game.c.moveto(self.shape, x, y)
 
 
 class Board:
