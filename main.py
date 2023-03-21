@@ -8,7 +8,7 @@ class Game:
     def __init__(self, height, width):
         self.width = width
         self.height = height  # nbr de case
-        self.r_size = 40  # pixel par case
+        self.r_size = 20  # pixel par case
 
         self.create_window()
         self.create_canvas()
@@ -46,6 +46,7 @@ class Person:
         self.j, self.i = spawn_coord
         self.speed_x = 0
         self.speed_y = 0
+        self.dt = 40
 
         self.show()
         self.move()
@@ -87,7 +88,7 @@ class Person:
 
         self.update()
 
-        self.game.root.after(150, self.move)
+        self.game.root.after(self.dt, self.move)
 
     def check_movement(self, j_test, i_test):
         return (
@@ -110,14 +111,12 @@ class Board:
     # CODE POUR GENERER ALEATOIREMENT LA CARTE, NE PAS SUPPRIMER
 
     # def create_walls(self):
-    #     self.walls = np.zeros((self.height, self.width))
-    #     for i in range(56):
-    #         x = random.randint(0, self.width-1)
-    #         y = random.randint(0, self.height-1)
+    #     self.walls = np.zeros((self.game.height, self.game.width))
+    #     for i in range(170):
+    #         x = random.randint(0, self.game.width - 1)
+    #         y = random.randint(0, self.game.height - 1)
     #         self.walls[y, x] = True
-    #     data = {"walls": self.walls.tolist()}
-    #     with open("/mnt/insa/lkusno/Home_INSA/Informatique/Algo/A2/Search/data.json", "w") as f:
-    #         json.dump(data, f)
+    #     np.save("./gamedata/walls.npy", self.walls)
 
     def show_walls(self):
         r_size = self.game.r_size
@@ -134,7 +133,7 @@ class Board:
 
 
 def main():
-    game = Game(19, 23)
+    game = Game(30, 46)
 
 
 if __name__ == "__main__":
