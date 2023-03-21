@@ -53,7 +53,7 @@ class Person():
     def update(self):
         r_size = self.game.r_size
         x, y = self.i * r_size, self.j * r_size
-        self.game.c.moveto(self.shape, x, y)
+        self.game.c.moveto(self.shape, x-1, y-1)
 
     def move(self, k):
         # coord où on veut aller
