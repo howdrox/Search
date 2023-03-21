@@ -2,6 +2,7 @@ import tkinter as tk
 import json
 import numpy as np
 import random
+from threading import Timer
 
 
 class Game:
@@ -15,11 +16,11 @@ class Game:
         self.board = Board(self)
         self.board.show_walls()
         self.create_entities()
-        # for p in self.persons:
-        #     p.show()
+        for p in self.persons:
+            p.show()
 
-        self.root.bind("<KeyPress>", lambda e: self.persons[0].key_press(e.keysym))
-        self.root.bind("<KeyRelease>", lambda e: self.persons[0].key_release(e.keysym))
+        self.root.bind("<KeyPress>", lambda e: self.persons[0].move(e.keysym))
+        self.root.bind("<KeyRelease>", lambda e: self.persons[0].stop(e.keysym))
         self.root.mainloop()
 
     def create_window(self):
@@ -44,11 +45,14 @@ class Person:
         self.game = game
         self.evil = evil
         self.j, self.i = spawn_coord
-        self.speed_x = 0
-        self.speed_y = 0
-
-        self.show()
-        self.move()
+        self.dt = 500
+        self.directions = [False, False, False, False]
+        self.mvt_timer = [
+            tmr(self.dt, lambda: self.mvt("w")),
+            tmr(self.dt, lambda: self.mvt("a")),
+            tmr(self.dt, lambda: self.mvt("s")),
+            tmr(self.dt, lambda: self.mvt("d")),
+        ]
 
     def show(self):
         r_size = self.game.r_size
@@ -60,34 +64,43 @@ class Person:
     def update(self):
         r_size = self.game.r_size
         x, y = self.i * r_size, self.j * r_size
-        self.game.c.moveto(self.shape, x - 1, y - 1)
+        self.game.c.moveto(self.shape, x, y)
 
-    def key_press(self, k):
+    def move(self, k):
+        if k in ("Up", "w") and not k[0]:
+            k[0] = True
+            self.mvt_timer[0].start()
+        elif k in ("Left", "a") and not k[1]:
+            k[1] = True
+            self.mvt_timer[1].start()
+        elif k in ("Down", "s") and not k[2]:
+            k[2] = True
+            self.mvt_timer[2].start()
+        elif k in ("Right", "d") and not k[3]:
+            k[3] = True
+            self.mvt_timer[3].start()
+
+    def mvt(self, k):
+        print(k)
+        # coord où on veut aller
+        j_test, i_test = self.j, self.i
         if k in ("Up", "w"):
-            self.speed_y = -1
+            j_test = self.j - 1
         elif k in ("Left", "a"):
-            self.speed_x = -1
+            i_test = self.i - 1
         elif k in ("Down", "s"):
-            self.speed_y = 1
+            j_test = self.j + 1
         elif k in ("Right", "d"):
-            self.speed_x = 1
+            i_test = self.i + 1
 
-    def key_release(self, k):
-        if k in ("Up", "w", "Down", "s"):
-            self.speed_y = 0
-        elif k in ("Left", "a", "Right", "d"):
-            self.speed_x = 0
-
-    def move(self):
-        i_test = self.i + self.speed_x
-        j_test = self.j + self.speed_y
         if self.check_movement(j_test, i_test):
-            self.i += self.speed_x
-            self.j += self.speed_y
+            self.j, self.i = j_test, i_test
 
         self.update()
 
-        self.game.root.after(150, self.move)
+        # self.mvt_timer.start()
+        # if not self.allow_movement:
+        #     self.mvt_timer.cancel()
 
     def check_movement(self, j_test, i_test):
         return (
@@ -95,6 +108,20 @@ class Person:
             and 0 <= i_test < self.game.width
             and not self.game.board.walls[j_test, i_test]
         )
+
+    def stop(self, k):
+        if k in ("Up", "w"):
+            self.mvt_timer[0].cancel()
+        elif k in ("Left", "a"):
+            self.mvt_timer[1].cancel()
+        elif k in ("Down", "s"):
+            self.mvt_timer[2].cancel()
+        elif k in ("Right", "d"):
+            self.mvt_timer[3].cancel()
+
+        # if k == self.allow_movement:
+        #     self.allow_movement = None
+        #     self.game.root.after_cancel(self.timer)
 
 
 class Board:
@@ -131,6 +158,29 @@ class Board:
                     y + r_size,
                     fill="grey" if self.walls[j, i] else "white",
                 )
+
+
+# Définition de la classe MonTimer
+class tmr:
+    # Le cosntructeur avec comme arguments délai (la période de répétition) et fonction (la méthode à répéter)
+    def __init__(self, delai, fonction):
+        self.delai = delai
+        self.fonction = fonction
+        self.timer = Timer(delai, self.run)  # Création du timer
+
+    # La méthode au démarage qui lance le Timer
+    def start(self):
+        self.timer.start()
+
+    # Lors de son exécution, un nouveau Timer est créé pour de nouveau lancer la méthode à répéter
+    def run(self):
+        self.timer = Timer(self.delai, self.run)
+        self.timer.start()
+        self.fonction()
+
+    # Lors de l'arrêt de cette tâche, le Timer s'arrête et s'annule
+    def cancel(self):
+        self.timer.cancel()
 
 
 def main():
