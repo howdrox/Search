@@ -2,6 +2,7 @@ import tkinter as tk
 import json
 import numpy as np
 import random
+import time
 
 
 class Game:
@@ -15,10 +16,9 @@ class Game:
         self.board = Board(self)
         self.board.show_walls()
         self.create_entities()
-        for p in self.persons:
-            p.show()
 
-        self.root.bind("<Key>",lambda e: self.persons[0].move(e.keysym))
+        self.root.bind("<KeyPress>", lambda e: self.persons[0].key_press(e.keysym))
+        self.root.bind("<KeyRelease>", lambda e: self.persons[0].key_release(e.keysym))
         self.root.mainloop()
 
     def create_window(self):
@@ -38,42 +38,67 @@ class Game:
         self.persons.append(Person(self, True, [6, 6]))
 
 
-class Person():
+class Person:
     def __init__(self, game, evil, spawn_coord):
         self.game = game
         self.evil = evil
         self.j, self.i = spawn_coord
+        self.speed_x = 0
+        self.speed_y = 0
+        self.dt = 70
+        self.t0 = time.time()
+
+        self.show()
+        self.move()
 
     def show(self):
         r_size = self.game.r_size
         x, y = self.i * r_size, self.j * r_size
         self.shape = self.game.c.create_rectangle(
-            x, y, x + r_size, y + r_size, fill="red" if self.evil else "blue")
+            x, y, x + r_size, y + r_size, fill="red" if self.evil else "blue"
+        )
 
     def update(self):
         r_size = self.game.r_size
         x, y = self.i * r_size, self.j * r_size
-        self.game.c.moveto(self.shape, x-1, y-1)
+        self.game.c.moveto(self.shape, x - 1, y - 1)
 
-    def move(self, k):
-        # coord où on veut aller
-        j_test, i_test = self.j, self.i
+    def key_press(self, k):
         if k in ("Up", "w"):
-            j_test = self.j-1
+            self.speed_y = -1
         elif k in ("Left", "a"):
-            i_test = self.i-1
+            self.speed_x = -1
         elif k in ("Down", "s"):
-            j_test = self.j+1
+            self.speed_y = 1
         elif k in ("Right", "d"):
-            i_test = self.i+1
+            self.speed_x = 1
 
+    def key_release(self, k):
+        if k in ("Up", "w", "Down", "s"):
+            self.speed_y = 0
+        elif k in ("Left", "a", "Right", "d"):
+            self.speed_x = 0
+
+    def move(self):
+        print(time.time() - self.t0)
+        self.t0 = time.time()
+
+        i_test = self.i + self.speed_x
+        j_test = self.j + self.speed_y
         if self.check_movement(j_test, i_test):
-            self.j, self.i = j_test, i_test
+            self.i += self.speed_x
+            self.j += self.speed_y
 
         self.update()
 
+        self.game.root.after(self.dt, self.move)
+
     def check_movement(self, j_test, i_test):
-        return 0 <= j_test < self.game.height and 0 <= i_test < self.game.width and not self.game.board.walls[j_test, i_test]
+        return (
+            0 <= j_test < self.game.height
+            and 0 <= i_test < self.game.width
+            and not self.game.board.walls[j_test, i_test]
+        )
 
 
 class Board:
@@ -83,19 +108,18 @@ class Board:
         self.board_rectangles = np.zeros((self.game.height, self.game.width))
         self.create_walls()
 
-    def create_walls(self):
-        self.walls=np.load('gamedata/walls.npy')
+    # def create_walls(self):
+    #     self.walls = np.load("gamedata/walls.npy")
+
     # CODE POUR GENERER ALEATOIREMENT LA CARTE, NE PAS SUPPRIMER
 
-    # def create_walls(self):
-    #     self.walls = np.zeros((self.height, self.width))
-    #     for i in range(56):
-    #         x = random.randint(0, self.width-1)
-    #         y = random.randint(0, self.height-1)
-    #         self.walls[y, x] = True
-    #     data = {"walls": self.walls.tolist()}
-    #     with open("/mnt/insa/lkusno/Home_INSA/Informatique/Algo/A2/Search/data.json", "w") as f:
-    #         json.dump(data, f)
+    def create_walls(self):
+        self.walls = np.zeros((self.game.height, self.game.width))
+        for i in range(40):
+            x = random.randint(0, self.game.width - 1)
+            y = random.randint(0, self.game.height - 1)
+            self.walls[y, x] = True
+        np.save("./gamedata/walls.npy", self.walls)
 
     def show_walls(self):
         r_size = self.game.r_size
@@ -103,11 +127,16 @@ class Board:
             for i in range(self.game.width):
                 x, y = i * r_size, j * r_size
                 self.board_rectangles[j, i] = self.game.c.create_rectangle(
-                    x, y, x + r_size, y + r_size, fill="grey" if self.walls[j, i] else "white")
+                    x,
+                    y,
+                    x + r_size,
+                    y + r_size,
+                    fill="grey" if self.walls[j, i] else "white",
+                )
 
 
 def main():
-    game = Game(19, 23)
+    game = Game(17, 35)
 
 
 if __name__ == "__main__":
