@@ -16,9 +16,6 @@ class Game:
         self.board = Board(self)
         self.board.show_walls()
         self.create_entities()
-
-        self.root.bind("<KeyPress>", lambda e: self.persons[0].key_press(e.keysym))
-        self.root.bind("<KeyRelease>", lambda e: self.persons[0].key_release(e.keysym))
         self.root.mainloop()
 
     def create_window(self):
@@ -33,9 +30,14 @@ class Game:
         self.c.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
     def create_entities(self):
-        self.persons = []
-        self.persons.append(Person(self, False, [1, 4]))
-        self.persons.append(Person(self, True, [6, 6]))
+        self.persons = {
+            'player': [Person(self, False, [1, 4])],
+            'enemy': [Person(self, True, [6, 6])],
+        }
+        self.root.bind(
+            "<KeyPress>", lambda e: self.persons['player'][0].speed_set(e.keysym))
+        self.root.bind(
+            "<KeyRelease>", lambda e: self.persons['player'][0].speed_cancel(e.keysym))
 
 
 class Person:
@@ -43,13 +45,11 @@ class Person:
         self.game = game
         self.evil = evil
         self.j, self.i = spawn_coord
-        self.speed_x = 0
-        self.speed_y = 0
-        self.dt = 70
-        self.t0 = time.time()
-
+        self.speed=15 # cases per second
+        self.speed_j=0
+        self.speed_i=0
         self.show()
-        self.move()
+        self.move_control()
 
     def show(self):
         r_size = self.game.r_size
@@ -63,35 +63,35 @@ class Person:
         x, y = self.i * r_size, self.j * r_size
         self.game.c.moveto(self.shape, x - 1, y - 1)
 
-    def key_press(self, k):
+    def speed_set(self, k):
         if k in ("Up", "w"):
-            self.speed_y = -1
+            self.speed_i = 0
+            self.speed_j = -1
         elif k in ("Left", "a"):
-            self.speed_x = -1
+            self.speed_j = 0
+            self.speed_i = -1
         elif k in ("Down", "s"):
-            self.speed_y = 1
+            self.speed_i = 0
+            self.speed_j = 1
         elif k in ("Right", "d"):
-            self.speed_x = 1
+            self.speed_j = 0
+            self.speed_i = 1
 
-    def key_release(self, k):
+    def speed_cancel(self, k):
         if k in ("Up", "w", "Down", "s"):
-            self.speed_y = 0
+            self.speed_j = 0
         elif k in ("Left", "a", "Right", "d"):
-            self.speed_x = 0
+            self.speed_i = 0
 
     def move(self):
-        print(time.time() - self.t0)
-        self.t0 = time.time()
-
-        i_test = self.i + self.speed_x
-        j_test = self.j + self.speed_y
+        i_test = self.i + self.speed_i
+        j_test = self.j + self.speed_j
         if self.check_movement(j_test, i_test):
-            self.i += self.speed_x
-            self.j += self.speed_y
-
+            self.i += self.speed_i
+            self.j += self.speed_j
         self.update()
 
-        self.game.root.after(self.dt, self.move)
+        self.game.root.after(int(1000/self.speed), self.move_control)
 
     def check_movement(self, j_test, i_test):
         return (
@@ -99,6 +99,14 @@ class Person:
             and 0 <= i_test < self.game.width
             and not self.game.board.walls[j_test, i_test]
         )
+
+    def move_control(self):
+        if self.evil:
+            self.pathfinding()
+        self.move()
+
+    def pathfinding(self):
+        self.speed_set(np.random.choice(['w','a','s','d']))
 
 
 class Board:
@@ -108,18 +116,12 @@ class Board:
         self.board_rectangles = np.zeros((self.game.height, self.game.width))
         self.create_walls()
 
-    # def create_walls(self):
-    #     self.walls = np.load("gamedata/walls.npy")
-
-    # CODE POUR GENERER ALEATOIREMENT LA CARTE, NE PAS SUPPRIMER
-
     def create_walls(self):
-        self.walls = np.zeros((self.game.height, self.game.width))
-        for i in range(40):
-            x = random.randint(0, self.game.width - 1)
-            y = random.randint(0, self.game.height - 1)
-            self.walls[y, x] = True
-        np.save("./gamedata/walls.npy", self.walls)
+        density=0.1 #density of  walls
+        np.random.seed(2333)
+        self.walls=np.random.choice([True,False],size=(self.game.height, self.game.width),p=(density,1-density))
+        #self.walls = np.load("gamedata/walls.npy")
+        np.save("./gamedata/walls", self.walls)
 
     def show_walls(self):
         r_size = self.game.r_size
