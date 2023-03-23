@@ -160,7 +160,7 @@ class Board:
     def create_walls(self):
         # GENERATING RANDOM WALLS
         # density = 0.1  # density of  walls
-        # np.random.seed(2333)
+        np.random.seed(233)
         # self.walls = np.random.choice(
         #     [True, False],
         #     size=(self.game.height, self.game.width),
