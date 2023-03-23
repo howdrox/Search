@@ -33,9 +33,11 @@ class Game:
         self.persons['player'] = [Person(self, False, [1, 1])]
         self.persons['enemy'] = [Person(self, True, [10, 10])]
         self.root.bind(
-            "<KeyPress>", lambda e: self.persons['player'][0].speed_set(e.keysym))
+            "<KeyPress>", lambda e: self.persons["player"][0].speed_set(e.keysym)
+        )
         self.root.bind(
-            "<KeyRelease>", lambda e: self.persons['player'][0].speed_cancel(e.keysym))
+            "<KeyRelease>", lambda e: self.persons["player"][0].speed_cancel(e.keysym)
+        )
 
 
 class Person:
@@ -156,12 +158,32 @@ class Board:
         self.create_walls()
 
     def create_walls(self):
-        density = 0.1  # density of  walls
-        np.random.seed(2333)
-        self.walls = np.random.choice([True, False], size=(
-            self.game.height, self.game.width), p=(density, 1-density))
-        # self.walls = np.load("gamedata/walls.npy")
+        # GENERATING RANDOM WALLS
+        # density = 0.1  # density of  walls
+        # np.random.seed(2333)
+        # self.walls = np.random.choice(
+        #     [True, False],
+        #     size=(self.game.height, self.game.width),
+        #     p=(density, 1 - density),
+        # )
+
+        # GENERATES WALLS FROM WALL_TYPES
+        self.walls = np.zeros((self.game.height, self.game.width))
+        self.wall_types = list(np.load("./gamedata/wall_types.npy"))
+        for i in range(32):
+            # Gets the wall type
+            rnd = np.random.randint(len(self.wall_types))
+            wall = self.wall_types[rnd]
+            # Rotates it randomly
+            rot = np.random.randint(4)
+            np.rot90(wall, rot)
+            # Generates the position
+            i = np.random.randint(self.game.width - 2)
+            j = np.random.randint(self.game.height - 2)
+            self.walls[j : j + wall.shape[0], i : i + wall.shape[1]] = wall
+
         np.save("./gamedata/walls", self.walls)
+        # # self.walls = np.load("gamedata/walls.npy")
 
     def show_walls(self):
         r_size = self.game.r_size
