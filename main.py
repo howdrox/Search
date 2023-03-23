@@ -31,13 +31,15 @@ class Game:
 
     def create_entities(self):
         self.persons = {
-            'player': [Person(self, False, [1, 4])],
-            'enemy': [Person(self, True, [6, 6])],
+            "player": [Person(self, False, [1, 4])],
+            "enemy": [Person(self, True, [6, 6])],
         }
         self.root.bind(
-            "<KeyPress>", lambda e: self.persons['player'][0].speed_set(e.keysym))
+            "<KeyPress>", lambda e: self.persons["player"][0].speed_set(e.keysym)
+        )
         self.root.bind(
-            "<KeyRelease>", lambda e: self.persons['player'][0].speed_cancel(e.keysym))
+            "<KeyRelease>", lambda e: self.persons["player"][0].speed_cancel(e.keysym)
+        )
 
 
 class Person:
@@ -45,9 +47,9 @@ class Person:
         self.game = game
         self.evil = evil
         self.j, self.i = spawn_coord
-        self.speed=15 # cases per second
-        self.speed_j=0
-        self.speed_i=0
+        self.speed = 10  # cases per second
+        self.speed_j = 0
+        self.speed_i = 0
         self.show()
         self.move_control()
 
@@ -91,7 +93,7 @@ class Person:
             self.j += self.speed_j
         self.update()
 
-        self.game.root.after(int(1000/self.speed), self.move_control)
+        self.game.root.after(int(1000 / self.speed), self.move_control)
 
     def check_movement(self, j_test, i_test):
         return (
@@ -106,7 +108,7 @@ class Person:
         self.move()
 
     def pathfinding(self):
-        self.speed_set(np.random.choice(['w','a','s','d']))
+        self.speed_set(np.random.choice(["w", "a", "s", "d"]))
 
 
 class Board:
@@ -117,10 +119,14 @@ class Board:
         self.create_walls()
 
     def create_walls(self):
-        density=0.1 #density of  walls
+        density = 0.1  # density of  walls
         np.random.seed(2333)
-        self.walls=np.random.choice([True,False],size=(self.game.height, self.game.width),p=(density,1-density))
-        #self.walls = np.load("gamedata/walls.npy")
+        self.walls = np.random.choice(
+            [True, False],
+            size=(self.game.height, self.game.width),
+            p=(density, 1 - density),
+        )
+        # self.walls = np.load("gamedata/walls.npy")
         np.save("./gamedata/walls", self.walls)
 
     def show_walls(self):
