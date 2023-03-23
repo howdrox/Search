@@ -4,7 +4,7 @@ import time
 import queue
 
 
-class Game:
+class Game():
     def __init__(self, height, width):
         self.width = width
         self.height = height  # nbr de case
@@ -40,7 +40,7 @@ class Game:
         )
 
 
-class Person:
+class Person():
     def __init__(self, game, evil, spawn_coord):
         self.game = game
         self.evil = evil
@@ -150,7 +150,7 @@ class Person:
                     came_from[neighbor] = current
 
 
-class Board:
+class Board():
     def __init__(self, game):
         self.game = game
         # where we store SHAPES of canvas.
