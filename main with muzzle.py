@@ -2,7 +2,7 @@ import tkinter as tk
 import numpy as np
 import time
 import queue
-from class_muzzle import muzzle
+
 
 
 class Game():
@@ -46,7 +46,7 @@ class Person():
         self.game = game
         self.evil = evil
         self.j, self.i = spawn_coord
-        self.j_muzzle, self.i_muzzle= spawn_coord
+        self.direction = [0,0] #[up/down,left/right]
 
         
        
@@ -78,15 +78,19 @@ class Person():
         if k in ("Up", "w"):
             self.speed_i = 0
             self.speed_j = -1
+            self.direction = [0,-1]
         elif k in ("Left", "a"):
-            self.speed_j = 0
             self.speed_i = -1
+            self.speed_j = 0
+            self.direction = [-1,0]
         elif k in ("Down", "s"):
             self.speed_i = 0
             self.speed_j = 1
+            self.direction = [0,1]
         elif k in ("Right", "d"):
-            self.speed_j = 0
             self.speed_i = 1
+            self.speed_j = 0
+            self.direction = [1,0]
 
     def speed_cancel(self, k):
         if k in ("Up", "w", "Down", "s"):
@@ -96,10 +100,10 @@ class Person():
     
     def update_muzzle(self):
         r_size = self.game.r_size
-        i_muzzle_test = self.i + 1*self.speed_i
-        j_muzzle_test = self.j + 1*self.speed_j
+        i_muzzle_test = self.i + self.direction[0] 
+        j_muzzle_test = self.j + self.direction[1]
         self.game.c.delete(self.muzzle)                                       
-        if self.game.board.check_movement(j_muzzle_test, i_muzzle_test) and self.speed_i != self.speed_j : 
+        if self.game.board.check_movement(j_muzzle_test, i_muzzle_test) : 
             self.i_muzzle = i_muzzle_test 
             self.j_muzzle = j_muzzle_test
             x_muzzle, y_muzzle = self.i_muzzle * r_size, self.j_muzzle * r_size
@@ -156,6 +160,7 @@ class Person():
                 next_node = path[-1]
                 self.speed_j = next_node[0]-start_node[0]
                 self.speed_i = next_node[1]-start_node[1]
+                self.direction = [self.speed_i,self.speed_j]
                 return 0
 
             for neighbor in self.game.board.get_abut_place(*current):
