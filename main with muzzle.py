@@ -39,16 +39,16 @@ class Game():
         self.root.bind(
             "<KeyRelease>", lambda e: self.persons["player"][0].speed_cancel(e.keysym)
         )
-        
+
 
 class Person():
     def __init__(self, game, evil, spawn_coord):
         self.game = game
         self.evil = evil
         self.j, self.i = spawn_coord
-        self.direction = [0,0] #[up/down,left/right]
-
-        
+        self.direction = [999,999] #[up/down,left/right]
+        self.delete_muzzle = False
+        self.canshoot = True # relate to the judgement of condition        
        
         if self.evil:
             self.speed = 5  # cases per second
@@ -67,6 +67,7 @@ class Person():
         )
         self.muzzle = self.game.c.create_oval(0,0,0,0,fill='yellow', edge = None)#initialise muzzle
 
+
     def update(self):
         r_size = self.game.r_size
         x, y = self.i * r_size, self.j * r_size 
@@ -75,35 +76,35 @@ class Person():
 
 
     def speed_set(self, k):
-        if k in ("Up", "w"):
+        if k in ("Up", "w","W"):
             self.speed_i = 0
             self.speed_j = -1
             self.direction = [0,-1]
-        elif k in ("Left", "a"):
+        elif k in ("Left", "a","A"):
             self.speed_i = -1
             self.speed_j = 0
             self.direction = [-1,0]
-        elif k in ("Down", "s"):
+        elif k in ("Down", "s","S"):
             self.speed_i = 0
             self.speed_j = 1
             self.direction = [0,1]
-        elif k in ("Right", "d"):
+        elif k in ("Right", "d","D"):
             self.speed_i = 1
             self.speed_j = 0
             self.direction = [1,0]
 
     def speed_cancel(self, k):
-        if k in ("Up", "w", "Down", "s"):
+        if k in ("Up", "w", "W", "Down", "s", "S"):
             self.speed_j = 0
-        elif k in ("Left", "a", "Right", "d"):
+        elif k in ("Left", "a", "A", "Right", "d", "D"):
             self.speed_i = 0
     
     def update_muzzle(self):
         r_size = self.game.r_size
         i_muzzle_test = self.i + self.direction[0] 
         j_muzzle_test = self.j + self.direction[1]
-        self.game.c.delete(self.muzzle)                                       
-        if self.game.board.check_movement(j_muzzle_test, i_muzzle_test) : 
+        self.game.c.delete(self.muzzle)                                   
+        if self.game.board.check_movement(j_muzzle_test, i_muzzle_test) and self.delete_muzzle == False : 
             self.i_muzzle = i_muzzle_test 
             self.j_muzzle = j_muzzle_test
             x_muzzle, y_muzzle = self.i_muzzle * r_size, self.j_muzzle * r_size
@@ -111,7 +112,13 @@ class Person():
             self.muzzle = self.game.c.create_oval(x_muzzle+0.42*r_size,y_muzzle+0.42*r_size
                                                ,x_muzzle+0.58*r_size,y_muzzle+0.58*r_size,fill='orange', edge = None, width = 0)
 
-
+    # def shoot(self,k):
+    #     r_size = self.game.r_size
+    #     if self.canshoot == True and k in ("j","J"):
+    #         ori_x = self.i * (r_size + self.direction[0])
+    #         ori_y= self.j * (r_size + self.direction[1])
+    #         self.bullet = self.game.c.create_line((1,1),(20,20), fill='red', dash=(3,3,1))
+    #         #ori_x-1.5,ori_y-1.5,ori_x+1.5,ori_y+1.5
 
     
     def move(self):
@@ -127,6 +134,7 @@ class Person():
 
     def move_control(self):
         if self.evil:
+            self.delete_muzzle = False #reset the muzzle
             self.pathfinding()
         self.move()
 
@@ -155,6 +163,7 @@ class Person():
                     current = came_from[current]
                 if len(path) == 0:
                     print('i found you!')
+                    self.delete_muzzle = True #When chased up : delete muzzle
                     self.speed_j,self.speed_i=0,0
                     return 0
                 next_node = path[-1]
