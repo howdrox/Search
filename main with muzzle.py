@@ -2,7 +2,7 @@ import tkinter as tk
 import numpy as np
 import time
 import queue
-from class_muzzle import muzzle
+
 
 
 class Game():
