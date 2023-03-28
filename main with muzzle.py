@@ -70,11 +70,8 @@ class Person():
     def update(self):
         r_size = self.game.r_size
         x, y = self.i * r_size, self.j * r_size 
-        # x_muzzle, y_muzzle = self.i_muzzle * r_size, self.j_muzzle * r_size
         self.game.c.moveto(self.shape, x - 1, y - 1)
-        # self.game.c.delete(self.muzzle)
-        # self.muzzle = self.game.c.create_oval(x_muzzle+0.42*r_size,y_muzzle+0.42*r_size
-        #                                       ,x_muzzle+0.58*r_size,y_muzzle+0.58*r_size,fill='orange', edge = None,width=0)
+
 
 
     def speed_set(self, k):
@@ -101,8 +98,7 @@ class Person():
         r_size = self.game.r_size
         i_muzzle_test = self.i + 1*self.speed_i
         j_muzzle_test = self.j + 1*self.speed_j
-        if self.game.board.check_movement(j_muzzle_test + self.speed_i, i_muzzle_test + self.speed_i):
-            self.game.c.delete(self.muzzle)                                       
+        self.game.c.delete(self.muzzle)                                       
         if self.game.board.check_movement(j_muzzle_test, i_muzzle_test) and self.speed_i != self.speed_j : 
             self.i_muzzle = i_muzzle_test 
             self.j_muzzle = j_muzzle_test
@@ -110,8 +106,7 @@ class Person():
             self.game.c.delete(self.muzzle)
             self.muzzle = self.game.c.create_oval(x_muzzle+0.42*r_size,y_muzzle+0.42*r_size
                                                ,x_muzzle+0.58*r_size,y_muzzle+0.58*r_size,fill='orange', edge = None, width = 0)
-        elif self.speed_i == self.speed_j == 0:
-            self.game.c.delete(self.muzzle)
+
 
 
     
