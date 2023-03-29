@@ -8,7 +8,7 @@ class Game():
     def __init__(self, height, width):
         self.width = width
         self.height = height  # nbr de case
-        self.r_size = 40  # pixel par case
+        self.r_size = 20  # pixel par case
 
         self.create_window()
         self.create_canvas()
@@ -200,7 +200,7 @@ class Board():
 
     def get_abut_place(self, j, i):
         return [
-            (j+dj, i+di) for dj in (-1, 0, 1) for di in (-1, 0, 1) if self.check_movement(j+dj, i+di) and abs(dj)+abs(di) != 2
+            (j+dj, i+di) for dj in (-1, 0, 1) for di in (-1, 0, 1) if self.check_movement(j+dj, i+di) and abs(dj)+abs(di)==1
         ]
 
     def check_movement(self, j_test, i_test):
@@ -212,7 +212,7 @@ class Board():
 
 
 def main():
-    game = Game(17, 35)
+    game = Game(36, 64)
 
 
 if __name__ == "__main__":
