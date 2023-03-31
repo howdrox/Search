@@ -4,7 +4,7 @@ import time
 import queue
 
 
-class Game():
+class Game:
     def __init__(self, height, width):
         self.width = width
         self.height = height  # nbr de case
@@ -30,8 +30,8 @@ class Game():
 
     def create_entities(self):
         self.persons = {}
-        self.persons['player'] = [Person(self, False, [1, 1])]
-        self.persons['enemy'] = [Person(self, True, [10, 10])]
+        self.persons["player"] = [Person(self, False, [1, 1])]
+        self.persons["enemy"] = [Person(self, True, [10, 10])]
         self.root.bind(
             "<KeyPress>", lambda e: self.persons["player"][0].speed_set(e.keysym)
         )
@@ -40,13 +40,13 @@ class Game():
         )
 
 
-class Person():
+class Person:
     def __init__(self, game, evil, spawn_coord):
         self.game = game
         self.evil = evil
         self.j, self.i = spawn_coord
         if self.evil:
-            self.speed = 5  # cases per second
+            self.speed = 11  # cases per second
         else:
             self.speed = 15
         self.speed_j = 0
@@ -94,7 +94,7 @@ class Person():
             self.j += self.speed_j
         self.update()
 
-        self.game.root.after(int(1000/self.speed), self.move_control)
+        self.game.root.after(int(1000 / self.speed), self.move_control)
 
     def move_control(self):
         if self.evil:
@@ -103,34 +103,35 @@ class Person():
 
     def pathfinding(self):
         start_node = (self.j, self.i)
-        end_node = (self.game.persons['player']
-                    [0].j, self.game.persons['player'][0].i)
+        end_node = (self.game.persons["player"][0].j, self.game.persons["player"][0].i)
 
         def h_score(node):
-            '''estimated distance to the player'''
-            return abs(node[0] - end_node[0]) + abs(node[1] - end_node[1])  # Manhattan distance
+            """estimated distance to the player"""
+            return abs(node[0] - end_node[0]) + abs(
+                node[1] - end_node[1]
+            )  # Manhattan distance
 
-        g_score = {start_node: 0}  # actual cost from start_node to a node        
-        f_score = {start_node: h_score(start_node)}# sum of g_score and h_score
+        g_score = {start_node: 0}  # actual cost from start_node to a node
+        f_score = {start_node: h_score(start_node)}  # sum of g_score and h_score
 
         frontier = queue.PriorityQueue()
         frontier.put((f_score[start_node], start_node))
         came_from = {}
         while not frontier.empty():
             _, current = frontier.get()
-            
+
             if current == end_node:
                 path = []
                 while current in came_from:
                     path.append(current)
                     current = came_from[current]
                 if len(path) == 0:
-                    print('i found you!')
-                    self.speed_j,self.speed_i=0,0
+                    print("i found you!")
+                    self.speed_j, self.speed_i = 0, 0
                     return 0
                 next_node = path[-1]
-                self.speed_j = next_node[0]-start_node[0]
-                self.speed_i = next_node[1]-start_node[1]
+                self.speed_j = next_node[0] - start_node[0]
+                self.speed_i = next_node[1] - start_node[1]
                 return 0
 
             for neighbor in self.game.board.get_abut_place(*current):
@@ -150,7 +151,7 @@ class Person():
                     came_from[neighbor] = current
 
 
-class Board():
+class Board:
     def __init__(self, game):
         self.game = game
         # where we store SHAPES of canvas.
@@ -200,7 +201,10 @@ class Board():
 
     def get_abut_place(self, j, i):
         return [
-            (j+dj, i+di) for dj in (-1, 0, 1) for di in (-1, 0, 1) if self.check_movement(j+dj, i+di) and abs(dj)+abs(di) != 2
+            (j + dj, i + di)
+            for dj in (-1, 0, 1)
+            for di in (-1, 0, 1)
+            if self.check_movement(j + dj, i + di) and abs(dj) + abs(di) != 2
         ]
 
     def check_movement(self, j_test, i_test):
