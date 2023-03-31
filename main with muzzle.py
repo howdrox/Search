@@ -4,11 +4,12 @@ import time
 import queue
 
 
-class Game:
+
+class Game():
     def __init__(self, height, width):
         self.width = width
         self.height = height  # nbr de case
-        self.r_size = 20  # pixel par case
+        self.r_size = 40  # pixel par case
 
         self.create_window()
         self.create_canvas()
@@ -30,8 +31,8 @@ class Game:
 
     def create_entities(self):
         self.persons = {}
-        self.persons["player"] = [Person(self, False, [1, 1])]
-        self.persons["enemy"] = [Person(self, True, [10, 10])]
+        self.persons['player'] = [Person(self, False, [1, 1])]
+        self.persons['enemy'] = [Person(self, True, [10, 10])]
         self.root.bind(
             "<KeyPress>", lambda e: self.persons["player"][0].speed_set(e.keysym)
         )
@@ -40,13 +41,17 @@ class Game:
         )
 
 
-class Person:
+class Person():
     def __init__(self, game, evil, spawn_coord):
         self.game = game
         self.evil = evil
         self.j, self.i = spawn_coord
+        self.direction = [999,999] #[up/down,left/right]
+        self.delete_muzzle = False
+        self.canshoot = True # relate to the judgement of condition        
+       
         if self.evil:
-            self.speed = 11  # cases per second
+            self.speed = 5  # cases per second
         else:
             self.speed = 15
         self.speed_j = 0
@@ -60,78 +65,111 @@ class Person:
         self.shape = self.game.c.create_rectangle(
             x, y, x + r_size, y + r_size, fill="red" if self.evil else "blue"
         )
+        self.muzzle = self.game.c.create_oval(0,0,0,0,fill='yellow', edge = None)#initialise muzzle
+
 
     def update(self):
         r_size = self.game.r_size
-        x, y = self.i * r_size, self.j * r_size
+        x, y = self.i * r_size, self.j * r_size 
         self.game.c.moveto(self.shape, x - 1, y - 1)
 
+
+
     def speed_set(self, k):
-        if k in ("Up", "w"):
+        if k in ("Up", "w","W"):
             self.speed_i = 0
             self.speed_j = -1
-        elif k in ("Left", "a"):
-            self.speed_j = 0
+            self.direction = [0,-1]
+        elif k in ("Left", "a","A"):
             self.speed_i = -1
-        elif k in ("Down", "s"):
+            self.speed_j = 0
+            self.direction = [-1,0]
+        elif k in ("Down", "s","S"):
             self.speed_i = 0
             self.speed_j = 1
-        elif k in ("Right", "d"):
-            self.speed_j = 0
+            self.direction = [0,1]
+        elif k in ("Right", "d","D"):
             self.speed_i = 1
+            self.speed_j = 0
+            self.direction = [1,0]
 
     def speed_cancel(self, k):
-        if k in ("Up", "w", "Down", "s"):
+        if k in ("Up", "w", "W", "Down", "s", "S"):
             self.speed_j = 0
-        elif k in ("Left", "a", "Right", "d"):
+        elif k in ("Left", "a", "A", "Right", "d", "D"):
             self.speed_i = 0
+    
+    def update_muzzle(self):
+        r_size = self.game.r_size
+        i_muzzle_test = self.i + self.direction[0] 
+        j_muzzle_test = self.j + self.direction[1]
+        self.game.c.delete(self.muzzle)                                   
+        if self.game.board.check_movement(j_muzzle_test, i_muzzle_test) and self.delete_muzzle == False : 
+            self.i_muzzle = i_muzzle_test 
+            self.j_muzzle = j_muzzle_test
+            x_muzzle, y_muzzle = self.i_muzzle * r_size, self.j_muzzle * r_size
+            self.game.c.delete(self.muzzle)
+            self.muzzle = self.game.c.create_oval(x_muzzle+0.42*r_size,y_muzzle+0.42*r_size
+                                               ,x_muzzle+0.58*r_size,y_muzzle+0.58*r_size,fill='orange', edge = None, width = 0)
 
+    # def shoot(self,k):
+    #     r_size = self.game.r_size
+    #     if self.canshoot == True and k in ("j","J"):
+    #         ori_x = self.i * (r_size + self.direction[0])
+    #         ori_y= self.j * (r_size + self.direction[1])
+    #         self.bullet = self.game.c.create_line((1,1),(20,20), fill='red', dash=(3,3,1))
+    #         #ori_x-1.5,ori_y-1.5,ori_x+1.5,ori_y+1.5
+
+    
     def move(self):
         i_test = self.i + self.speed_i
         j_test = self.j + self.speed_j
         if self.game.board.check_movement(j_test, i_test):
             self.i += self.speed_i
             self.j += self.speed_j
+        
         self.update()
-
-        self.game.root.after(int(1000 / self.speed), self.move_control)
+        self.update_muzzle()
+        self.game.root.after(int(1000/self.speed), self.move_control)
 
     def move_control(self):
         if self.evil:
+            self.delete_muzzle = False #reset the muzzle
             self.pathfinding()
         self.move()
 
     def pathfinding(self):
         start_node = (self.j, self.i)
-        end_node = (self.game.persons["player"][0].j, self.game.persons["player"][0].i)
+        end_node = (self.game.persons['player']
+                    [0].j, self.game.persons['player'][0].i)
 
         def h_score(node):
-            """estimated distance to the player"""
-            return abs(node[0] - end_node[0]) + abs(
-                node[1] - end_node[1]
-            )  # Manhattan distance
+            '''estimated distance to the player'''
+            return abs(node[0] - end_node[0]) + abs(node[1] - end_node[1])  # Manhattan distance
 
-        g_score = {start_node: 0}  # actual cost from start_node to a node
-        f_score = {start_node: h_score(start_node)}  # sum of g_score and h_score
+        g_score = {start_node: 0}  # actual cost from start_node to a node        
+        f_score = {start_node: h_score(start_node)}# sum of g_score and h_score
 
         frontier = queue.PriorityQueue()
         frontier.put((f_score[start_node], start_node))
         came_from = {}
         while not frontier.empty():
             _, current = frontier.get()
-
+            
             if current == end_node:
                 path = []
                 while current in came_from:
                     path.append(current)
                     current = came_from[current]
                 if len(path) == 0:
-                    print("i found you!")
-                    self.speed_j, self.speed_i = 0, 0
+                    print('i found you!')
+                    self.delete_muzzle = True #When chased up : delete muzzle
+                    self.speed_j,self.speed_i=0,0
                     return 0
                 next_node = path[-1]
-                self.speed_j = next_node[0] - start_node[0]
-                self.speed_i = next_node[1] - start_node[1]
+                self.speed_j = next_node[0]-start_node[0]
+                self.speed_i = next_node[1]-start_node[1]
+                self.direction = [self.speed_i,self.speed_j]
                 return 0
 
             for neighbor in self.game.board.get_abut_place(*current):
@@ -151,7 +189,7 @@ class Person:
                     came_from[neighbor] = current
 
 
-class Board:
+class Board():
     def __init__(self, game):
         self.game = game
         # where we store SHAPES of canvas.
@@ -201,10 +239,7 @@ class Board:
 
     def get_abut_place(self, j, i):
         return [
-            (j + dj, i + di)
-            for dj in (-1, 0, 1)
-            for di in (-1, 0, 1)
-            if self.check_movement(j + dj, i + di) and abs(dj) + abs(di) == 1
+            (j+dj, i+di) for dj in (-1, 0, 1) for di in (-1, 0, 1) if self.check_movement(j+dj, i+di) and abs(dj)+abs(di) != 2
         ]
 
     def check_movement(self, j_test, i_test):
@@ -216,7 +251,7 @@ class Board:
 
 
 def main():
-    game = Game(36, 64)
+    game = Game(17, 35)
 
 
 if __name__ == "__main__":
