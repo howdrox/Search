@@ -14,6 +14,7 @@ class Game:
         self.create_canvas()
         self.board = Board(self)
         self.board.show_walls()
+        self.board.show_portals()
         self.create_entities()
         self.root.mainloop()
 
@@ -61,7 +62,7 @@ class Person:
             x, y, x + r_size, y + r_size, fill="red" if self.evil else "blue"
         )
 
-    def update(self):
+    def update_rect(self):
         r_size = self.game.r_size
         x, y = self.i * r_size, self.j * r_size
         self.game.c.moveto(self.shape, x - 1, y - 1)
@@ -89,10 +90,18 @@ class Person:
     def move(self):
         i_test = self.i + self.speed_i
         j_test = self.j + self.speed_j
+        # if the player is in a portal
+        if self.game.board.check_movement(
+            j_test, i_test
+        ) and self.game.board.check_portal(j_test, i_test):
+            j_test, i_test = self.game.board.get_portal(j_test, i_test)
+            j_test += self.speed_j
+            i_test += self.speed_i
         if self.game.board.check_movement(j_test, i_test):
-            self.i += self.speed_i
-            self.j += self.speed_j
-        self.update()
+            self.i = i_test
+            self.j = j_test
+
+        self.update_rect()
 
         self.game.root.after(int(1000 / self.speed), self.move_control)
 
@@ -134,7 +143,7 @@ class Person:
                 self.speed_i = next_node[1] - start_node[1]
                 return 0
 
-            for neighbor in self.game.board.get_abut_place(*current):
+            for neighbor in self.game.board.get_adj_coords(*current):
                 tentative_g_score = g_score[current] + 1
 
                 if neighbor not in g_score:
@@ -157,11 +166,12 @@ class Board:
         # where we store SHAPES of canvas.
         self.board_rectangles = np.zeros((self.game.height, self.game.width))
         self.create_walls()
+        self.create_portals()
 
     def create_walls(self):
         # GENERATING RANDOM WALLS
         # density = 0.1  # density of  walls
-        np.random.seed(233)
+        np.random.seed(2135123)
         # self.walls = np.random.choice(
         #     [True, False],
         #     size=(self.game.height, self.game.width),
@@ -199,7 +209,7 @@ class Board:
                     fill="grey" if self.walls[j, i] else "white",
                 )
 
-    def get_abut_place(self, j, i):
+    def get_adj_coords(self, j, i):
         return [
             (j + dj, i + di)
             for dj in (-1, 0, 1)
@@ -211,12 +221,48 @@ class Board:
         return (
             0 <= j_test < self.game.height
             and 0 <= i_test < self.game.width
-            and not self.game.board.walls[j_test, i_test]
+            and not self.walls[j_test, i_test]
+        )
+
+    def create_portals(self):
+        # create portals on random coords and connects them
+        self.portals = np.zeros((self.game.height, self.game.width))
+        self.portals_coords = []
+        while len(self.portals_coords) < 2:
+            j = np.random.randint(self.game.height)
+            i = np.random.randint(self.game.width)
+            if self.check_movement(j, i):
+                self.portals[j, i] = 1
+                self.portals_coords.append((j, i))
+
+    def show_portals(self):
+        # show portals on the board
+        r_size = self.game.r_size
+        for j, i in self.portals_coords:
+            x, y = i * r_size, j * r_size
+            self.board_rectangles[j, i] = self.game.c.create_rectangle(
+                x,
+                y,
+                x + r_size,
+                y + r_size,
+                fill="green",
+            )
+
+    def check_portal(self, j, i):
+        # checks if the player is on the portal
+        return self.portals[j, i]
+
+    def get_portal(self, j, i):
+        # returns the coords of the portal
+        return (
+            self.portals_coords[0]
+            if (j, i) != self.portals_coords[0]
+            else self.portals_coords[1]
         )
 
 
 def main():
-    game = Game(36, 64)
+    game = Game(30, 60)
 
 
 if __name__ == "__main__":
