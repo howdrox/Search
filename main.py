@@ -250,7 +250,6 @@ class Board():
             and not self.game.board.walls[j_test, i_test]
         )
 
-
 def main():
     game = Game(17, 35)
 
