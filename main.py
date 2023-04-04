@@ -236,6 +236,7 @@ class Board():
                     y + r_size,
                     fill="grey" if self.walls[j, i] else "white",
                 )
+                
 
     def get_abut_place(self, j, i):
         return [
