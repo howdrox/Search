@@ -136,14 +136,16 @@ class Person:
         if self.game.board.check_movement(
             j_test, i_test
         ) and self.game.board.check_portal(j_test, i_test):
+            print(j_test, i_test)
             j_test, i_test = self.game.board.get_portal(j_test, i_test)
+            print(j_test, i_test)
             j_test += self.speed_j
             i_test += self.speed_i
         if self.game.board.check_movement(j_test, i_test):
-            self.i += self.speed_i
-            self.j += self.speed_j
+            self.i = i_test
+            self.j = j_test
 
-        self.update()
+        self.update_rect()
         self.update_muzzle()
         self.game.root.after(int(1000 / self.speed), self.move_control)
 
@@ -216,7 +218,7 @@ class Board:
     def create_walls(self):
         # GENERATING RANDOM WALLS
         # density = 0.1  # density of  walls
-        np.random.seed(2135123)
+        np.random.seed(2)
         # self.walls = np.random.choice(
         #     [True, False],
         #     size=(self.game.height, self.game.width),
@@ -226,7 +228,7 @@ class Board:
         # GENERATES WALLS FROM WALL_TYPES
         self.walls = np.zeros((self.game.height, self.game.width))
         self.wall_types = list(np.load("./gamedata/wall_types.npy"))
-        for i in range(32):
+        for i in range(7):
             # Gets the wall type
             rnd = np.random.randint(len(self.wall_types))
             wall = self.wall_types[rnd]
@@ -307,7 +309,7 @@ class Board:
 
 
 def main():
-    game = Game(30, 60)
+    game = Game(17, 20)
 
 
 if __name__ == "__main__":
