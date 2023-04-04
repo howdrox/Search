@@ -47,7 +47,7 @@ class Person():
         self.evil = evil
         self.j, self.i = spawn_coord
         self.direction = [999,999] #[up/down,left/right]
-        self.delete_muzzle = False
+        self.delete_orientation = False
         self.canshoot = True # relate to the judgement of condition        
        
         if self.evil:
@@ -65,7 +65,7 @@ class Person():
         self.shape = self.game.c.create_rectangle(
             x, y, x + r_size, y + r_size, fill="red" if self.evil else "blue"
         )
-        self.muzzle = self.game.c.create_oval(0,0,0,0,fill='yellow', edge = None)#initialise muzzle
+        self.orientation = self.game.c.create_oval(0,0,0,0,fill='yellow', edge = None)#initialise orientation
 
 
     def update(self):
@@ -99,18 +99,18 @@ class Person():
         elif k in ("Left", "a", "A", "Right", "d", "D"):
             self.speed_i = 0
     
-    def update_muzzle(self):
+    def update_orientation(self):
         r_size = self.game.r_size
-        i_muzzle_test = self.i + self.direction[0] 
-        j_muzzle_test = self.j + self.direction[1]
-        self.game.c.delete(self.muzzle)                                   
-        if self.game.board.check_movement(j_muzzle_test, i_muzzle_test) and self.delete_muzzle == False : 
-            self.i_muzzle = i_muzzle_test 
-            self.j_muzzle = j_muzzle_test
-            x_muzzle, y_muzzle = self.i_muzzle * r_size, self.j_muzzle * r_size
-            self.game.c.delete(self.muzzle)
-            self.muzzle = self.game.c.create_oval(x_muzzle+0.42*r_size,y_muzzle+0.42*r_size
-                                               ,x_muzzle+0.58*r_size,y_muzzle+0.58*r_size,fill='orange', edge = None, width = 0)
+        i_orientation_test = self.i + self.direction[0] 
+        j_orientation_test = self.j + self.direction[1]
+        self.game.c.delete(self.orientation)                                   
+        if self.game.board.check_movement(j_orientation_test, i_orientation_test) and self.delete_orientation == False : 
+            self.i_orientation = i_orientation_test 
+            self.j_orientation = j_orientation_test
+            x_orientation, y_orientation = self.i_orientation * r_size, self.j_orientation * r_size
+            self.game.c.delete(self.orientation)
+            self.orientation = self.game.c.create_oval(x_orientation+0.42*r_size,y_orientation+0.42*r_size
+                                               ,x_orientation+0.58*r_size,y_orientation+0.58*r_size,fill='orange', edge = None, width = 0)
 
     # def shoot(self,k):
     #     r_size = self.game.r_size
@@ -129,12 +129,12 @@ class Person():
             self.j += self.speed_j
         
         self.update()
-        self.update_muzzle()
+        self.update_orientation()
         self.game.root.after(int(1000/self.speed), self.move_control)
 
     def move_control(self):
         if self.evil:
-            self.delete_muzzle = False #reset the muzzle
+            self.delete_orientation = False #reset the orientation
             self.pathfinding()
         self.move()
 
@@ -163,7 +163,7 @@ class Person():
                     current = came_from[current]
                 if len(path) == 0:
                     print('i found you!')
-                    self.delete_muzzle = True #When chased up : delete muzzle
+                    self.delete_orientation = True #When chased up : delete orientation
                     self.speed_j,self.speed_i=0,0
                     return 0
                 next_node = path[-1]
