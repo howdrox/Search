@@ -95,19 +95,29 @@ class Person:
             self.speed_j = 0
         elif k in ("Left", "a", "A", "Right", "d", "D"):
             self.speed_i = 0
-    
+
     def update_orientation(self):
         r_size = self.game.r_size
-        i_orientation_test = self.i + self.direction[0] 
+        i_orientation_test = self.i + self.direction[0]
         j_orientation_test = self.j + self.direction[1]
-        self.game.c.delete(self.orientation)                                   
-        if self.game.board.check_movement(j_orientation_test, i_orientation_test) and self.delete_orientation == False : 
-            self.i_orientation = i_orientation_test 
+        self.game.c.delete(self.orientation)
+        if (
+            self.game.board.check_movement(j_orientation_test, i_orientation_test)
+            and self.delete_orientation == False
+        ):
+            self.i_orientation = i_orientation_test
             self.j_orientation = j_orientation_test
             x_orientation, y_orientation = self.i_orientation * r_size, self.j_orientation * r_size
             self.game.c.delete(self.orientation)
-            self.orientation = self.game.c.create_oval(x_orientation+0.42*r_size,y_orientation+0.42*r_size
-                                               ,x_orientation+0.58*r_size,y_orientation+0.58*r_size,fill='orange', edge = None, width = 0)
+            self.orientation = self.game.c.create_oval(
+                x_orientation + 0.42 * r_size,
+                y_orientation + 0.42 * r_size,
+                x_orientation + 0.58 * r_size,
+                y_orientation + 0.58 * r_size,
+                fill="orange",
+                edge=None,
+                width=0,
+            )
 
     # def shoot(self,k):
     #     r_size = self.game.r_size
@@ -135,11 +145,11 @@ class Person:
         
         self.update_rect()
         self.update_orientation()
-        self.game.root.after(int(1000/self.speed), self.move_control)
+        self.game.root.after(int(1000 / self.speed), self.move_control)
 
     def move_control(self):
         if self.evil:
-            self.delete_orientation = False #reset the orientation
+            self.delete_orientation = False  # reset the muzzle
             self.pathfinding()
         self.move()
 
@@ -168,9 +178,9 @@ class Person:
                     path.append(current)
                     current = came_from[current]
                 if len(path) == 0:
-                    print('i found you!')
-                    self.delete_orientation = True #When chased up : delete orientation
-                    self.speed_j,self.speed_i=0,0
+                    print("i found you!")
+                    self.delete_orientation = True  # When chased up : delete muzzle
+                    self.speed_j, self.speed_i = 0, 0
                     return 0
                 next_node = path[-1]
                 self.speed_j = next_node[0] - start_node[0]
