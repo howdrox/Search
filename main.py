@@ -46,10 +46,10 @@ class Person:
         self.game = game
         self.evil = evil
         self.j, self.i = spawn_coord
-        self.direction = [999,999] #[up/down,left/right]
-        self.delete_orientation = False
-        self.canshoot = True # relate to the judgement of condition        
-       
+        self.direction = [999, 999]  # [up/down,left/right]
+        self.delete_muzzle = False
+        self.canshoot = True  # relate to the judgement of condition
+
         if self.evil:
             self.speed = 5  # cases per second
         else:
@@ -65,7 +65,9 @@ class Person:
         self.shape = self.game.c.create_rectangle(
             x, y, x + r_size, y + r_size, fill="red" if self.evil else "blue"
         )
-        self.orientation = self.game.c.create_oval(0,0,0,0,fill='yellow', edge = None)#initialise orientation
+        self.muzzle = self.game.c.create_oval(
+            0, 0, 0, 0, fill="yellow", edge=None
+        )  # initialise muzzle
 
     def update_rect(self):
         r_size = self.game.r_size
@@ -96,24 +98,24 @@ class Person:
         elif k in ("Left", "a", "A", "Right", "d", "D"):
             self.speed_i = 0
 
-    def update_orientation(self):
+    def update_muzzle(self):
         r_size = self.game.r_size
-        i_orientation_test = self.i + self.direction[0]
-        j_orientation_test = self.j + self.direction[1]
-        self.game.c.delete(self.orientation)
+        i_muzzle_test = self.i + self.direction[0]
+        j_muzzle_test = self.j + self.direction[1]
+        self.game.c.delete(self.muzzle)
         if (
-            self.game.board.check_movement(j_orientation_test, i_orientation_test)
-            and self.delete_orientation == False
+            self.game.board.check_movement(j_muzzle_test, i_muzzle_test)
+            and self.delete_muzzle == False
         ):
-            self.i_orientation = i_orientation_test
-            self.j_orientation = j_orientation_test
-            x_orientation, y_orientation = self.i_orientation * r_size, self.j_orientation * r_size
-            self.game.c.delete(self.orientation)
-            self.orientation = self.game.c.create_oval(
-                x_orientation + 0.42 * r_size,
-                y_orientation + 0.42 * r_size,
-                x_orientation + 0.58 * r_size,
-                y_orientation + 0.58 * r_size,
+            self.i_muzzle = i_muzzle_test
+            self.j_muzzle = j_muzzle_test
+            x_muzzle, y_muzzle = self.i_muzzle * r_size, self.j_muzzle * r_size
+            self.game.c.delete(self.muzzle)
+            self.muzzle = self.game.c.create_oval(
+                x_muzzle + 0.42 * r_size,
+                y_muzzle + 0.42 * r_size,
+                x_muzzle + 0.58 * r_size,
+                y_muzzle + 0.58 * r_size,
                 fill="orange",
                 edge=None,
                 width=0,
@@ -140,16 +142,16 @@ class Person:
             j_test += self.speed_j
             i_test += self.speed_i
         if self.game.board.check_movement(j_test, i_test):
-            self.i += self.speed_i
-            self.j += self.speed_j
-        
+            self.i = i_test
+            self.j = j_test
+
         self.update_rect()
-        self.update_orientation()
+        self.update_muzzle()
         self.game.root.after(int(1000 / self.speed), self.move_control)
 
     def move_control(self):
         if self.evil:
-            self.delete_orientation = False  # reset the muzzle
+            self.delete_muzzle = False  # reset the muzzle
             self.pathfinding()
         self.move()
 
@@ -179,7 +181,7 @@ class Person:
                     current = came_from[current]
                 if len(path) == 0:
                     print("i found you!")
-                    self.delete_orientation = True  # When chased up : delete muzzle
+                    self.delete_muzzle = True  # When chased up : delete muzzle
                     self.speed_j, self.speed_i = 0, 0
                     return 0
                 next_node = path[-1]
@@ -308,7 +310,6 @@ class Board:
 
 def main():
     game = Game(17, 20)
-
 
 
 if __name__ == "__main__":
