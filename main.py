@@ -109,7 +109,10 @@ class Person:
         ):
             self.i_orientation = i_orientation_test
             self.j_orientation = j_orientation_test
-            x_orientation, y_orientation = self.i_orientation * r_size, self.j_orientation * r_size
+            x_orientation, y_orientation = (
+                self.i_orientation * r_size,
+                self.j_orientation * r_size,
+            )
             self.game.c.delete(self.orientation)
             self.orientation = self.game.c.create_oval(
                 x_orientation + 0.42 * r_size,
@@ -181,7 +184,9 @@ class Person:
                     current = came_from[current]
                 if len(path) == 0:
                     print("i found you!")
-                    self.delete_orientation = True  # When chased up : delete orientation
+                    self.delete_orientation = (
+                        True  # When chased up : delete orientation
+                    )
                     self.speed_j, self.speed_i = 0, 0
                     return 0
                 next_node = path[-1]
