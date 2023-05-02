@@ -37,11 +37,24 @@ class Game:
     def create_entities(self):
         self.entities = {"player": [], "enemy": [], "portal": []}
         self.entities["player"].append(Player(self, [1, 1], 1))
-        self.entities["player"].append(Player(self, [17, 16], 2))
+        self.entities["player"].append(Player(self, [15, 16], 2))
         self.entities["enemy"].append(Enemy(self, [10, 10], 1))
         self.entities["enemy"].append(Enemy(self, [14, 7], 2))
         self.entities["portal"].append(Portal(self, [4, 14], 1))
         self.entities["portal"].append(Portal(self, [6, 19], 2))
+
+    def check_entities(self, j_test, i_test):
+        for entity_type, entity_list in self.entities.items():
+            for entity in entity_list:
+                if entity.j == j_test and entity.i == i_test:
+                    return entity_type, entity
+        return False
+
+    def check_case(self, j_test, i_test):
+        if self.board.check_walls(j_test, i_test):
+            return "wall"
+        else:
+            return self.check_entities(j_test, i_test)
 
 
 class Entity:
@@ -108,7 +121,7 @@ class Entity:
         i_orientation_test = self.i + self.direction[0]
         j_orientation_test = self.j + self.direction[1]
         if (
-            self.game.board.check_movement(j_orientation_test, i_orientation_test)
+            not self.game.board.check_walls(j_orientation_test, i_orientation_test)
             and self.delete_orientation == False
         ):
             self.i_orientation = i_orientation_test
@@ -152,7 +165,7 @@ class Entity:
             j_test += self.speed_j
             i_test += self.speed_i
 
-        if self.game.board.check_movement(j_test, i_test):
+        if not self.game.check_case(j_test, i_test):
             self.i = i_test
             self.j = j_test
 
@@ -298,8 +311,21 @@ class Enemy(Entity):
 
 class Portal(Entity):
     def caracter_init(self):
-        self.speed = 0
+        self.speed = 0.1
         self.spritesheet = tk.PhotoImage(file="./img/spritesheet1.png")
+
+    def move_control(self):
+        self.refresh()
+        self.move()
+
+    def refresh(self):
+        while True:
+            i_test = np.random.randint(0, self.game.width)
+            j_test = np.random.randint(0, self.game.height)
+            if not self.game.check_case(j_test, i_test):
+                self.i = i_test
+                self.j = j_test
+                break
 
 
 class Board:
@@ -356,14 +382,14 @@ class Board:
             (j + dj, i + di)
             for dj in (-1, 0, 1)
             for di in (-1, 0, 1)
-            if self.check_movement(j + dj, i + di) and abs(dj) + abs(di) != 2
+            if not self.check_walls(j + dj, i + di) and abs(dj) + abs(di) != 2
         ]
 
-    def check_movement(self, j_test, i_test):
+    def check_walls(self, j_test, i_test):
         return (
-            0 <= j_test < self.game.height
-            and 0 <= i_test < self.game.width
-            and not self.walls[j_test, i_test]
+            not 0 <= j_test < self.game.height
+            or not 0 <= i_test < self.game.width
+            or self.walls[j_test, i_test]
         )
 
 
