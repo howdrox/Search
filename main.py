@@ -139,9 +139,9 @@ class Person:
         if self.game.board.check_movement(
             j_test, i_test
         ) and self.game.board.check_portal(j_test, i_test):
-            # print(j_test, i_test)
+            print(j_test, i_test)
             j_test, i_test = self.game.board.get_portal(j_test, i_test)
-            # print(j_test, i_test)
+            print(j_test, i_test)
             j_test += self.speed_j
             i_test += self.speed_i
         if self.game.board.check_movement(j_test, i_test):
