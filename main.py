@@ -35,17 +35,17 @@ class Game:
         self.c.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
     def create_entities(self):
-        self.persons = {"player": [], "enemy": [], "portal": []}
-        self.persons["player"].append(Player(self, [1, 1], 1))
-        self.persons["enemy"].append(Enemy(self, [10, 10], 1))
-        self.persons["enemy"].append(Enemy(self, [14, 7], 2))
-        self.persons["portal"].append(Portal(self, [4, 14], 1))
-        self.persons["portal"].append(Portal(self, [6, 19], 2))
+        self.entities = {"player": [], "enemy": [], "portal": []}
+        self.entities["player"].append(Player(self, [1, 1], 1))
+        self.entities["enemy"].append(Enemy(self, [10, 10], 1))
+        self.entities["enemy"].append(Enemy(self, [14, 7], 2))
+        self.entities["portal"].append(Portal(self, [4, 14], 1))
+        self.entities["portal"].append(Portal(self, [6, 19], 2))
         self.root.bind(
-            "<KeyPress>", lambda e: self.persons["player"][0].speed_set(e.keysym)
+            "<KeyPress>", lambda e: self.entities["player"][0].speed_set(e.keysym)
         )
         self.root.bind(
-            "<KeyRelease>", lambda e: self.persons["player"][0].speed_cancel(e.keysym)
+            "<KeyRelease>", lambda e: self.entities["player"][0].speed_cancel(e.keysym)
         )
 
 
@@ -138,12 +138,12 @@ class Person:
     def check_portal(self, j_test, i_test):
         # checks if the player is on the portal
         return (j_test, i_test) in [
-            (portal.j, portal.i) for portal in self.game.persons["portal"]
+            (portal.j, portal.i) for portal in self.game.entities["portal"]
         ]
 
     def get_portal(self, j_test, i_test):
         # returns the coords of the portal
-        portal1, portal2 = self.game.persons["portal"]
+        portal1, portal2 = self.game.entities["portal"]
         if (j_test, i_test) == (portal1.j, portal1.i):
             return portal2.j, portal2.i
         else:
@@ -224,7 +224,7 @@ class Player(Person):
 
 class Enemy(Person):
     def caracter_init(self):
-        self.speed = 0.001
+        self.speed = 5
         self.spritesheet = tk.PhotoImage(file="./img/spritesheet2.png")
 
     def move_control(self):
@@ -233,7 +233,7 @@ class Enemy(Person):
 
     def pathfinding(self):
         start_node = (self.j, self.i)
-        end_node = (self.game.persons["player"][0].j, self.game.persons["player"][0].i)
+        end_node = (self.game.entities["player"][0].j, self.game.entities["player"][0].i)
 
         def h_score(node):
             """estimated distance to the player"""
