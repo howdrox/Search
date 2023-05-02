@@ -4,19 +4,25 @@ import time
 import queue
 
 
-class Game():
+class Game:
     def __init__(self, height, width):
+        self.t = time.time()
         self.width = width
         self.height = height  # nbr de case
         self.r_size = 40  # pixel par case
 
         self.create_window()
+        self.timer()
         self.create_canvas()
         self.board = Board(self)
         self.board.show_walls()
         self.board.show_portals()
         self.create_entities()
         self.root.mainloop()
+
+    def timer(self):
+        print("\rPlay time: ", int(time.time() - self.t), "s", end="", flush=True)
+        self.root.after(1000, self.timer)
 
     def create_window(self):
         self.c_width = self.width * self.r_size
@@ -41,7 +47,7 @@ class Game():
         )
 
 
-class Person():
+class Person:
     def __init__(self, game, evil, spawn_coord):
         self.game = game
         self.evil = evil
@@ -124,14 +130,6 @@ class Person():
                 width=0,
             )
 
-    # def shoot(self,k):
-    #     r_size = self.game.r_size
-    #     if self.canshoot == True and k in ("j","J"):
-    #         ori_x = self.i * (r_size + self.direction[0])
-    #         ori_y= self.j * (r_size + self.direction[1])
-    #         self.bullet = self.game.c.create_line((1,1),(20,20), fill='red', dash=(3,3,1))
-    #         #ori_x-1.5,ori_y-1.5,ori_x+1.5,ori_y+1.5
-
     def move(self):
         i_test = self.i + self.speed_i
         j_test = self.j + self.speed_j
@@ -212,11 +210,18 @@ class Person():
                     came_from[neighbor] = current
 
 
-class Board():
+class Board:
+    """
+    les attributs de cette classe sont :
+        self.game
+        self.board_rectangles
+
+
+    """
+
     def __init__(self, game):
         self.game = game
         # where we store SHAPES of canvas.
-        self.board_rectangles = np.zeros((self.game.height, self.game.width))
         self.create_walls()
         self.create_portals()
 
@@ -224,19 +229,14 @@ class Board():
         # GENERATING RANDOM WALLS
         # density = 0.1  # density of  walls
         np.random.seed(2)
-        # self.walls = np.random.choice(
-        #     [True, False],
-        #     size=(self.game.height, self.game.width),
-        #     p=(density, 1 - density),
-        # )
 
         # GENERATES WALLS FROM WALL_TYPES
         self.walls = np.zeros((self.game.height, self.game.width))
-        self.wall_types = list(np.load("./gamedata/wall_types.npy"))
+        wall_types = list(np.load("./gamedata/wall_types.npy"))
         for i in range(7):
             # Gets the wall type
-            rnd = np.random.randint(len(self.wall_types))
-            wall = self.wall_types[rnd]
+            rnd = np.random.randint(len(wall_types))
+            wall = wall_types[rnd]
             # Rotates it randomly
             rot = np.random.randint(4)
             np.rot90(wall, rot)
@@ -250,16 +250,19 @@ class Board():
 
     def show_walls(self):
         r_size = self.game.r_size
-        for j in range(self.game.height):
-            for i in range(self.game.width):
-                x, y = i * r_size, j * r_size
-                self.board_rectangles[j, i] = self.game.c.create_rectangle(
-                    x,
-                    y,
-                    x + r_size,
-                    y + r_size,
+        self.board_rectangles = np.array(
+            [
+                self.game.c.create_rectangle(
+                    i * r_size,
+                    j * r_size,
+                    (i + 1) * r_size,
+                    (j + 1) * r_size + r_size,
                     fill="grey" if self.walls[j, i] else "white",
                 )
+                for i in range(self.game.width)
+                for j in range(self.game.height)
+            ]
+        )
 
     def get_adj_coords(self, j, i):
         return [
@@ -292,7 +295,7 @@ class Board():
         r_size = self.game.r_size
         for j, i in self.portals_coords:
             x, y = i * r_size, j * r_size
-            self.board_rectangles[j, i] = self.game.c.create_rectangle(
+            self.board_rectangles = self.game.c.create_rectangle(
                 x,
                 y,
                 x + r_size,
