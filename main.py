@@ -358,35 +358,6 @@ class Board:
             and not self.walls[j_test, i_test]
         )
 
-        # def create_portals(self):
-        #     # create portals on random coords and connects them
-        #     self.portals_coords = []
-        #     self.portals = np.zeros((self.game.height, self.game.width))
-        #     n = 1
-        #     while n <= 2:
-        #         j = np.random.randint(self.game.height)
-        #         i = np.random.randint(self.game.width)
-        #         if self.check_movement(j, i):
-        #             self.portals[j, i] = n
-        #             self.portals_coords.append((j, i))
-        #             n += 1
-
-        # def show_portals(self):
-        #     # show portals on the board
-        #     r_size = self.game.r_size
-        #     self.portal_rectangles = np.zeros((self.game.height, self.game.width))
-        #     for j in range(self.game.height):
-        #         for i in range(self.game.width):
-        #             if self.portals[j, i]:
-        #                 self.portal_rectangles[j, i] = self.game.c.create_rectangle(
-        #                     i * r_size,
-        #                     j * r_size,
-        #                     (i + 1) * r_size,
-        #                     (j + 1) * r_size,
-        #                     fill="cyan" if self.portals[j, i] == 1 else "yellow",
-        #                 )
-
-
 def main():
     game = Game(17, 20)
 
