@@ -214,8 +214,10 @@ class Board:
     """
     les attributs de cette classe sont :
         self.game
-        self.board_rectangles
-
+        self.walls
+        self.portals
+        self.wall_rectangles
+        self.portals_coords
 
     """
 
@@ -250,7 +252,7 @@ class Board:
 
     def show_walls(self):
         r_size = self.game.r_size
-        self.board_rectangles = np.array(
+        self.wall_rectangles = np.array(
             [
                 self.game.c.create_rectangle(
                     i * r_size,
