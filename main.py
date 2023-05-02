@@ -49,7 +49,7 @@ class Game:
         )
 
 
-class Person:
+class Entity:
     def __init__(self, game, spawn_coord, numéro):
         self.game = game
         self.j, self.i = spawn_coord
@@ -185,7 +185,7 @@ class Person:
             return 3
 
 
-class Player(Person):
+class Player(Entity):
     def caracter_init(self):
         self.speed = 15
         self.spritesheet = tk.PhotoImage(file="./img/spritesheet1.png")
@@ -222,7 +222,7 @@ class Player(Person):
             self.speed_i = 0
 
 
-class Enemy(Person):
+class Enemy(Entity):
     def caracter_init(self):
         self.speed = 5
         self.spritesheet = tk.PhotoImage(file="./img/spritesheet2.png")
@@ -285,7 +285,7 @@ class Enemy(Person):
                     came_from[neighbor] = current
 
 
-class Portal(Person):
+class Portal(Entity):
     def caracter_init(self):
         self.speed = 0
         self.spritesheet = tk.PhotoImage(file="./img/spritesheet1.png")
