@@ -16,7 +16,6 @@ class Game:
         self.create_canvas()
         self.board = Board(self)
         self.board.show_walls()
-        self.board.show_portals()
         self.create_entities()
         self.root.mainloop()
 
@@ -36,9 +35,12 @@ class Game:
         self.c.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
     def create_entities(self):
-        self.persons = {}
-        self.persons["player"] = [Player(self, [1, 1], "./img/spritesheet1.png")]
-        self.persons["enemy"] = [Enemy(self, [10, 10], "./img/spritesheet2.png")]
+        self.persons = {"player": [], "enemy": [], "portal": []}
+        self.persons["player"].append(Player(self, [1, 1], 1))
+        self.persons["enemy"].append(Enemy(self, [10, 10], 1))
+        self.persons["enemy"].append(Enemy(self, [14, 7], 2))
+        self.persons["portal"].append(Portal(self, [4, 14], 1))
+        self.persons["portal"].append(Portal(self, [6, 19], 2))
         self.root.bind(
             "<KeyPress>", lambda e: self.persons["player"][0].speed_set(e.keysym)
         )
@@ -48,13 +50,14 @@ class Game:
 
 
 class Person:
-    def __init__(self, game, spawn_coord, file_path):
+    def __init__(self, game, spawn_coord, numéro):
         self.game = game
         self.j, self.i = spawn_coord
+        self.numéro = numéro
+        self.caracter_init()
         self.direction = [999, 999]  # [up/down,left/right]
         self.delete_orientation = False
         self.canshoot = True  # relate to the judgement of condition
-        self.spritesheet = tk.PhotoImage(file=file_path)
         self.num_sprites = 3
         self.sprites = [
             [
@@ -82,8 +85,7 @@ class Person:
 
         # initialise orientation
         self.orientation = self.game.c.create_oval(0, 0, 0, 0, fill="yellow", edge=None)
-        self.speed_j = 0
-        self.speed_i = 0
+        self.speed_j, self.speed_i = 0, 0
         self.show()
         self.move_control()
 
@@ -133,16 +135,28 @@ class Person:
         else:
             self.game.c.delete(self.orientation)
 
+    def check_portal(self, j_test, i_test):
+        # checks if the player is on the portal
+        return (j_test, i_test) in [
+            (portal.j, portal.i) for portal in self.game.persons["portal"]
+        ]
+
+    def get_portal(self, j_test, i_test):
+        # returns the coords of the portal
+        portal1, portal2 = self.game.persons["portal"]
+        if (j_test, i_test) == (portal1.j, portal1.i):
+            return portal2.j, portal2.i
+        else:
+            return portal1.j, portal1.i
+
     def move(self):
-        i_test = self.i + self.speed_i
-        j_test = self.j + self.speed_j
+        i_test, j_test = self.i + self.speed_i, self.j + self.speed_j
         # if the player is in a portal
-        if self.game.board.check_movement(
-            j_test, i_test
-        ) and self.game.board.check_portal(j_test, i_test):
-            j_test, i_test = self.game.board.get_portal(j_test, i_test)
-            j_test += self.speed_j
-            i_test += self.speed_i
+        if self.check_portal(j_test, i_test):
+            j_test, i_test = self.get_portal(j_test, i_test)
+            j_test+=self.speed_j
+            i_test+=self.speed_i
+
         if self.game.board.check_movement(j_test, i_test):
             self.i = i_test
             self.j = j_test
@@ -150,6 +164,9 @@ class Person:
         self.update_rect()
         self.update_orientation()
         self.game.root.after(int(1000 / self.speed), self.move_control)
+
+    def move_control(self):
+        pass
 
     def subimage(self, l, t, r, b):
         dst = tk.PhotoImage()
@@ -169,7 +186,9 @@ class Person:
 
 
 class Player(Person):
-    speed = 15
+    def caracter_init(self):
+        self.speed = 15
+        self.spritesheet = tk.PhotoImage(file="./img/spritesheet1.png")
 
     def move_control(self):
         self.move()
@@ -204,7 +223,9 @@ class Player(Person):
 
 
 class Enemy(Person):
-    speed = 5
+    def caracter_init(self):
+        self.speed = 0.001
+        self.spritesheet = tk.PhotoImage(file="./img/spritesheet2.png")
 
     def move_control(self):
         self.pathfinding()
@@ -264,6 +285,12 @@ class Enemy(Person):
                     came_from[neighbor] = current
 
 
+class Portal(Person):
+    def caracter_init(self):
+        self.speed = 0
+        self.spritesheet = tk.PhotoImage(file="./img/spritesheet1.png")
+
+
 class Board:
     """
     les attributs de cette classe sont :
@@ -279,7 +306,6 @@ class Board:
         self.game = game
         # where we store SHAPES of canvas.
         self.create_walls()
-        self.create_portals()
 
     def create_walls(self):
         # GENERATING RANDOM WALLS
@@ -332,45 +358,33 @@ class Board:
             and not self.walls[j_test, i_test]
         )
 
-    def create_portals(self):
-        # create portals on random coords and connects them
-        self.portals_coords = []
-        self.portals = np.zeros((self.game.height, self.game.width))
-        n = 1
-        while n <= 2:
-            j = np.random.randint(self.game.height)
-            i = np.random.randint(self.game.width)
-            if self.check_movement(j, i):
-                self.portals[j, i] = n
-                self.portals_coords.append((j, i))
-                n += 1
+        # def create_portals(self):
+        #     # create portals on random coords and connects them
+        #     self.portals_coords = []
+        #     self.portals = np.zeros((self.game.height, self.game.width))
+        #     n = 1
+        #     while n <= 2:
+        #         j = np.random.randint(self.game.height)
+        #         i = np.random.randint(self.game.width)
+        #         if self.check_movement(j, i):
+        #             self.portals[j, i] = n
+        #             self.portals_coords.append((j, i))
+        #             n += 1
 
-    def show_portals(self):
-        # show portals on the board
-        r_size = self.game.r_size
-        self.portal_rectangles = np.zeros((self.game.height, self.game.width))
-        for j in range(self.game.height):
-            for i in range(self.game.width):
-                if self.portals[j, i]:
-                    self.portal_rectangles[j, i] = self.game.c.create_rectangle(
-                        i * r_size,
-                        j * r_size,
-                        (i + 1) * r_size,
-                        (j + 1) * r_size,
-                        fill="cyan" if self.portals[j, i] == 1 else "yellow",
-                    )
-
-    def check_portal(self, j, i):
-        # checks if the player is on the portal
-        return self.portals[j, i]
-
-    def get_portal(self, j, i):
-        # returns the coords of the portal
-        return (
-            self.portals_coords[0]
-            if (j, i) != self.portals_coords[0]
-            else self.portals_coords[1]
-        )
+        # def show_portals(self):
+        #     # show portals on the board
+        #     r_size = self.game.r_size
+        #     self.portal_rectangles = np.zeros((self.game.height, self.game.width))
+        #     for j in range(self.game.height):
+        #         for i in range(self.game.width):
+        #             if self.portals[j, i]:
+        #                 self.portal_rectangles[j, i] = self.game.c.create_rectangle(
+        #                     i * r_size,
+        #                     j * r_size,
+        #                     (i + 1) * r_size,
+        #                     (j + 1) * r_size,
+        #                     fill="cyan" if self.portals[j, i] == 1 else "yellow",
+        #                 )
 
 
 def main():
