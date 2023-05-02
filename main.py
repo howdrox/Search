@@ -37,16 +37,11 @@ class Game:
     def create_entities(self):
         self.entities = {"player": [], "enemy": [], "portal": []}
         self.entities["player"].append(Player(self, [1, 1], 1))
+        self.entities["player"].append(Player(self, [17, 16], 2))
         self.entities["enemy"].append(Enemy(self, [10, 10], 1))
         self.entities["enemy"].append(Enemy(self, [14, 7], 2))
         self.entities["portal"].append(Portal(self, [4, 14], 1))
         self.entities["portal"].append(Portal(self, [6, 19], 2))
-        self.root.bind(
-            "<KeyPress>", lambda e: self.entities["player"][0].speed_set(e.keysym)
-        )
-        self.root.bind(
-            "<KeyRelease>", lambda e: self.entities["player"][0].speed_cancel(e.keysym)
-        )
 
 
 class Entity:
@@ -190,10 +185,23 @@ class Player(Entity):
         self.speed = 15
         self.spritesheet = tk.PhotoImage(file="./img/spritesheet1.png")
 
+        move_keys = (
+            ["w", "s", "a", "d"]
+            if self.numéro == 1
+            else ["Up", "Down", "Left", "Right"]
+        )
+        for key in move_keys:
+            self.game.root.bind(
+                f"<KeyPress-{key}>", lambda e: self.key_speed_set(e.keysym)
+            )
+            self.game.root.bind(
+                f"<KeyRelease-{key}>", lambda e: self.key_speed_cancel(e.keysym)
+            )
+
     def move_control(self):
         self.move()
 
-    def speed_set(self, k):
+    def key_speed_set(self, k):
         if k in ("Up", "w", "W"):
             self.speed_i = 0
             self.speed_j = -1
@@ -215,7 +223,7 @@ class Player(Entity):
             self.direction = [1, 0]
             self.sprite_dir = 2
 
-    def speed_cancel(self, k):
+    def key_speed_cancel(self, k):
         if k in ("Up", "w", "W", "Down", "s", "S"):
             self.speed_j = 0
         elif k in ("Left", "a", "A", "Right", "d", "D"):
