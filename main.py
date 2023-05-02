@@ -106,7 +106,6 @@ class Person:
         x, y = self.i * r_size, self.j * r_size
         self.game.c.moveto(self.shape, x, y)
 
-
     def update_orientation(self):
         r_size = self.game.r_size
         i_orientation_test = self.i + self.direction[0]
@@ -152,7 +151,6 @@ class Person:
         self.update_orientation()
         self.game.root.after(int(1000 / self.speed), self.move_control)
 
-
     def subimage(self, l, t, r, b):
         dst = tk.PhotoImage()
         dst.tk.call(dst, "copy", self.spritesheet, "-from", l, t, r, b, "-to", 0, 0)
@@ -169,8 +167,10 @@ class Person:
         elif dir == [0, -1]:
             return 3
 
+
 class Player(Person):
-    speed=15    
+    speed = 15
+
     def move_control(self):
         self.move()
 
@@ -202,10 +202,10 @@ class Player(Person):
         elif k in ("Left", "a", "A", "Right", "d", "D"):
             self.speed_i = 0
 
-class Enemy(Person):
-    speed=5
 
-    
+class Enemy(Person):
+    speed = 5
+
     def move_control(self):
         self.pathfinding()
         self.move()
@@ -264,7 +264,6 @@ class Enemy(Person):
                     came_from[neighbor] = current
 
 
-
 class Board:
     """
     les attributs de cette classe sont :
@@ -316,7 +315,7 @@ class Board:
                     (i + 1) * r_size,
                     (j + 1) * r_size,
                     fill="grey" if self.walls[j, i] else "white",
-                    )
+                )
 
     def get_adj_coords(self, j, i):
         return [
