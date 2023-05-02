@@ -21,7 +21,7 @@ class Game:
         self.root.mainloop()
 
     def timer(self):
-        print("\rPlay time: ", int(time.time() - self.t), "s", end="", flush=True)
+        self.root.title(f"Search Play time: {int(time.time() - self.t)}s")
         self.root.after(1000, self.timer)
 
     def create_window(self):
@@ -216,7 +216,7 @@ class Person:
                     path.append(current)
                     current = came_from[current]
                 if len(path) == 0:
-                    print("i found you!")
+                    self.game.root.title("Game Over")
                     # When found player : delete orientation
                     self.delete_orientation = True
                     self.speed_j, self.speed_i = 0, 0
@@ -248,7 +248,7 @@ class Person:
         dst = tk.PhotoImage()
         dst.tk.call(dst, "copy", self.spritesheet, "-from", l, t, r, b, "-to", 0, 0)
         return dst
-    
+
     def determine_sprite_dir(self, dir):
         # done by copilot
         if dir == [0, 1]:
@@ -261,8 +261,6 @@ class Person:
             return 3
 
 
-
-
 class Board:
     """
     les attributs de cette classe sont :
@@ -273,6 +271,7 @@ class Board:
         self.portals_coords
 
     """
+
     def __init__(self, game):
         self.game = game
         # where we store SHAPES of canvas.
@@ -304,19 +303,16 @@ class Board:
 
     def show_walls(self):
         r_size = self.game.r_size
-        self.wall_rectangles = np.array(
-            [
-                self.game.c.create_rectangle(
+        self.wall_rectangles = np.zeros((self.game.height, self.game.width))
+        for j in range(self.game.height):
+            for i in range(self.game.width):
+                self.wall_rectangles[j, i] = self.game.c.create_rectangle(
                     i * r_size,
                     j * r_size,
                     (i + 1) * r_size,
-                    (j + 1) * r_size + r_size,
+                    (j + 1) * r_size,
                     fill="grey" if self.walls[j, i] else "white",
-                )
-                for i in range(self.game.width)
-                for j in range(self.game.height)
-            ]
-        )
+                    )
 
     def get_adj_coords(self, j, i):
         return [
@@ -335,27 +331,31 @@ class Board:
 
     def create_portals(self):
         # create portals on random coords and connects them
-        self.portals = np.zeros((self.game.height, self.game.width))
         self.portals_coords = []
-        while len(self.portals_coords) < 2:
+        self.portals = np.zeros((self.game.height, self.game.width))
+        n = 1
+        while n <= 2:
             j = np.random.randint(self.game.height)
             i = np.random.randint(self.game.width)
             if self.check_movement(j, i):
-                self.portals[j, i] = 1
+                self.portals[j, i] = n
                 self.portals_coords.append((j, i))
+                n += 1
 
     def show_portals(self):
         # show portals on the board
         r_size = self.game.r_size
-        for j, i in self.portals_coords:
-            x, y = i * r_size, j * r_size
-            self.board_rectangles = self.game.c.create_rectangle(
-                x,
-                y,
-                x + r_size,
-                y + r_size,
-                fill="green",
-            )
+        self.portal_rectangles = np.zeros((self.game.height, self.game.width))
+        for j in range(self.game.height):
+            for i in range(self.game.width):
+                if self.portals[j, i]:
+                    self.portal_rectangles[j, i] = self.game.c.create_rectangle(
+                        i * r_size,
+                        j * r_size,
+                        (i + 1) * r_size,
+                        (j + 1) * r_size,
+                        fill="cyan" if self.portals[j, i] == 1 else "yellow",
+                    )
 
     def check_portal(self, j, i):
         # checks if the player is on the portal
