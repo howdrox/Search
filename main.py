@@ -154,8 +154,8 @@ class Entity:
         # if the player is in a portal
         if self.check_portal(j_test, i_test):
             j_test, i_test = self.get_portal(j_test, i_test)
-            j_test+=self.speed_j
-            i_test+=self.speed_i
+            j_test += self.speed_j
+            i_test += self.speed_i
 
         if self.game.board.check_movement(j_test, i_test):
             self.i = i_test
@@ -233,7 +233,10 @@ class Enemy(Entity):
 
     def pathfinding(self):
         start_node = (self.j, self.i)
-        end_node = (self.game.entities["player"][0].j, self.game.entities["player"][0].i)
+        end_node = (
+            self.game.entities["player"][0].j,
+            self.game.entities["player"][0].i,
+        )
 
         def h_score(node):
             """estimated distance to the player"""
@@ -296,10 +299,7 @@ class Board:
     les attributs de cette classe sont :
         self.game
         self.walls
-        self.portals
         self.wall_rectangles
-        self.portals_coords
-
     """
 
     def __init__(self, game):
@@ -357,6 +357,7 @@ class Board:
             and 0 <= i_test < self.game.width
             and not self.walls[j_test, i_test]
         )
+
 
 def main():
     game = Game(17, 20)
