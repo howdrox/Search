@@ -37,8 +37,8 @@ class Game:
 
     def create_entities(self):
         self.persons = {}
-        self.persons["player"] = [Person(self, False, [1, 1], "./img/spritesheet1.png")]
-        self.persons["enemy"] = [Person(self, True, [10, 10], "./img/spritesheet2.png")]
+        self.persons["player"] = [Player(self, [1, 1], "./img/spritesheet1.png")]
+        self.persons["enemy"] = [Enemy(self, [10, 10], "./img/spritesheet2.png")]
         self.root.bind(
             "<KeyPress>", lambda e: self.persons["player"][0].speed_set(e.keysym)
         )
@@ -48,9 +48,8 @@ class Game:
 
 
 class Person:
-    def __init__(self, game, evil, spawn_coord, file_path):
+    def __init__(self, game, spawn_coord, file_path):
         self.game = game
-        self.evil = evil
         self.j, self.i = spawn_coord
         self.direction = [999, 999]  # [up/down,left/right]
         self.delete_orientation = False
@@ -81,11 +80,6 @@ class Person:
             0, 0, image=self.sprites[self.sprite_dir][self.sprite_index]
         )
 
-        if self.evil:
-            self.speed = 5  # cases per second
-        else:
-            self.speed = 15
-
         # initialise orientation
         self.orientation = self.game.c.create_oval(0, 0, 0, 0, fill="yellow", edge=None)
         self.speed_j = 0
@@ -112,33 +106,6 @@ class Person:
         x, y = self.i * r_size, self.j * r_size
         self.game.c.moveto(self.shape, x, y)
 
-    def speed_set(self, k):
-        if k in ("Up", "w", "W"):
-            self.speed_i = 0
-            self.speed_j = -1
-            self.direction = [0, -1]
-            self.sprite_dir = 3
-        elif k in ("Left", "a", "A"):
-            self.speed_i = -1
-            self.speed_j = 0
-            self.direction = [-1, 0]
-            self.sprite_dir = 1
-        elif k in ("Down", "s", "S"):
-            self.speed_i = 0
-            self.speed_j = 1
-            self.direction = [0, 1]
-            self.sprite_dir = 0
-        elif k in ("Right", "d", "D"):
-            self.speed_i = 1
-            self.speed_j = 0
-            self.direction = [1, 0]
-            self.sprite_dir = 2
-
-    def speed_cancel(self, k):
-        if k in ("Up", "w", "W", "Down", "s", "S"):
-            self.speed_j = 0
-        elif k in ("Left", "a", "A", "Right", "d", "D"):
-            self.speed_i = 0
 
     def update_orientation(self):
         r_size = self.game.r_size
@@ -185,10 +152,62 @@ class Person:
         self.update_orientation()
         self.game.root.after(int(1000 / self.speed), self.move_control)
 
+
+    def subimage(self, l, t, r, b):
+        dst = tk.PhotoImage()
+        dst.tk.call(dst, "copy", self.spritesheet, "-from", l, t, r, b, "-to", 0, 0)
+        return dst
+
+    def determine_sprite_dir(self, dir):
+        # done by copilot
+        if dir == [0, 1]:
+            return 0
+        elif dir == [-1, 0]:
+            return 1
+        elif dir == [1, 0]:
+            return 2
+        elif dir == [0, -1]:
+            return 3
+
+class Player(Person):
+    speed=15    
     def move_control(self):
-        if self.evil:
-            # self.delete_orientation = False  # reset the orientation
-            self.pathfinding()
+        self.move()
+
+    def speed_set(self, k):
+        if k in ("Up", "w", "W"):
+            self.speed_i = 0
+            self.speed_j = -1
+            self.direction = [0, -1]
+            self.sprite_dir = 3
+        elif k in ("Left", "a", "A"):
+            self.speed_i = -1
+            self.speed_j = 0
+            self.direction = [-1, 0]
+            self.sprite_dir = 1
+        elif k in ("Down", "s", "S"):
+            self.speed_i = 0
+            self.speed_j = 1
+            self.direction = [0, 1]
+            self.sprite_dir = 0
+        elif k in ("Right", "d", "D"):
+            self.speed_i = 1
+            self.speed_j = 0
+            self.direction = [1, 0]
+            self.sprite_dir = 2
+
+    def speed_cancel(self, k):
+        if k in ("Up", "w", "W", "Down", "s", "S"):
+            self.speed_j = 0
+        elif k in ("Left", "a", "A", "Right", "d", "D"):
+            self.speed_i = 0
+
+class Enemy(Person):
+    speed=5
+
+    
+    def move_control(self):
+        self.pathfinding()
         self.move()
 
     def pathfinding(self):
@@ -244,21 +263,6 @@ class Person:
                     frontier.put((f_score[neighbor], neighbor))
                     came_from[neighbor] = current
 
-    def subimage(self, l, t, r, b):
-        dst = tk.PhotoImage()
-        dst.tk.call(dst, "copy", self.spritesheet, "-from", l, t, r, b, "-to", 0, 0)
-        return dst
-
-    def determine_sprite_dir(self, dir):
-        # done by copilot
-        if dir == [0, 1]:
-            return 0
-        elif dir == [-1, 0]:
-            return 1
-        elif dir == [1, 0]:
-            return 2
-        elif dir == [0, -1]:
-            return 3
 
 
 class Board:
