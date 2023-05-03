@@ -68,10 +68,10 @@ class Entity:
         self.delete_orientation = False
         self.canshoot = True  # relate to the judgement of condition
         self.create_sprites()
+        self.update_sprites()
 
         # initialise orientation
         self.orientation = self.game.c.create_oval(0, 0, 0, 0, fill="yellow", edge=None)
-        self.update_sprites()
         self.move_control()
 
     def caracter_init(self):
@@ -117,10 +117,6 @@ class Entity:
         if not move_only:
             self.game.root.after(300, self.update_sprites)
 
-    def update_rect(self):
-        case_size = self.game.case_size
-        x, y = self.i * case_size, self.j * case_size
-        self.game.c.moveto(self.shape, x, y)
 
     def update_orientation(self):
         case_size = self.game.case_size
@@ -174,8 +170,8 @@ class Entity:
         if not self.game.check_case(j_test, i_test):
             self.i = i_test
             self.j = j_test
+            self.update_sprites(move_only=True)
 
-        self.update_rect()
         self.update_orientation()
         self.game.root.after(int(1000 / self.speed), self.move_control)
 
