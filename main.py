@@ -117,7 +117,6 @@ class Entity:
         if not move_only:
             self.game.root.after(300, self.update_sprites)
 
-
     def update_orientation(self):
         case_size = self.game.case_size
         i_orientation_test = self.i + self.direction[0]
@@ -259,14 +258,8 @@ class Enemy(Entity):
             self.game.entities["player"][0].i,
         )
 
-        def h_score(node):
-            """estimated distance to the player"""
-            return abs(node[0] - end_node[0]) + abs(
-                node[1] - end_node[1]
-            )  # Manhattan distance
-
         g_score = {start_node: 0}  # actual cost from start_node to a node
-        f_score = {start_node: h_score(start_node)}  # sum of g_score and h_score
+        f_score = {start_node: self.game.board.Manhattan(start_node,end_node)}  # sum of g_score and h_score
 
         frontier = queue.PriorityQueue()
         frontier.put((f_score[start_node], start_node))
@@ -297,14 +290,14 @@ class Enemy(Entity):
 
                 if neighbor not in g_score:
                     g_score[neighbor] = tentative_g_score
-                    f_score[neighbor] = tentative_g_score + h_score(neighbor)
+                    f_score[neighbor] = tentative_g_score + self.game.board.Manhattan(neighbor,end_node)
                     frontier.put((f_score[neighbor], neighbor))
                     came_from[neighbor] = current
                 # If the neighbor is in the frontier and the tentative g_score is lower,
                 # update its g_score, f_score, and parent
                 elif tentative_g_score < g_score[neighbor]:
                     g_score[neighbor] = tentative_g_score
-                    f_score[neighbor] = tentative_g_score + h_score(neighbor)
+                    f_score[neighbor] = tentative_g_score + self.game.board.Manhattan(neighbor,end_node)
                     frontier.put((f_score[neighbor], neighbor))
                     came_from[neighbor] = current
 
@@ -391,6 +384,10 @@ class Board:
             for di in (-1, 0, 1)
             if not self.check_walls(j + dj, i + di) and abs(dj) + abs(di) != 2
         ]
+
+    def Manhattan(self,node1, node2):
+        """Manhattan distance"""
+        return abs(node1[0] - node2[0]) + abs(node1[1] - node2[1])
 
     def check_walls(self, j_test, i_test):
         return (
