@@ -81,7 +81,7 @@ class Entity:
         self.num_ani_frames = 3
         sprite_pixel = 48
         self.spritesheet = Image.open(self.spritesheet_path)
-        self.sprites = [
+        self.sprites = [  # 0:down, 1:left, 2:right, 3:up
             # *(sprite_pixel * np.array([i, j, i + 1, j + 1]))
             [
                 ImageTk.PhotoImage(
@@ -95,13 +95,13 @@ class Entity:
                                 self.sprite_pos_in_sheet_j * 4 + j + 1,
                             ]
                         )
-                    )
+                    ).resize((self.game.case_size, self.game.case_size))
                 )
                 for i in range(self.num_ani_frames)
             ]
             for j in range(4)
         ]
-        self.sprite_dir = 0  # 0:down, 1:left, 2:right, 3:up
+        self.sprite_dir = 0
         self.sprite_index = 0
         self.shape = self.game.c.create_image(
             0, 0, image=self.sprites[self.sprite_dir][self.sprite_index]
@@ -109,17 +109,15 @@ class Entity:
 
     def show(self):
         case_size = self.game.case_size
-        x, y = self.i * case_size, self.j * case_size + 32
         self.game.c.delete(self.shape)
         self.shape = self.game.c.create_image(
-            x + case_size / 2,
-            y - case_size / 2,
+            *(case_size * (np.array([self.i, self.j]) + 0.5)),
             image=self.sprites[self.sprite_dir][self.sprite_index],
         )
 
         self.sprite_index = (self.sprite_index + 1) % self.num_ani_frames
         # sprite loop
-        self.game.root.after(400, self.show)
+        self.game.root.after(300, self.show)
 
     def update_rect(self):
         case_size = self.game.case_size
@@ -322,7 +320,7 @@ class Portal(Entity):
     def caracter_init(self):
         self.speed = 0.1
         self.spritesheet_path = "./img/characters/!Door2.png"
-        self.sprite_pos_in_sheet_i = 0 if self.numéro==1 else 3
+        self.sprite_pos_in_sheet_i = 0 if self.numéro == 1 else 3
         self.sprite_pos_in_sheet_j = 1
 
     def move_control(self):
