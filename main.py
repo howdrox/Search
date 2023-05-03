@@ -20,7 +20,7 @@ class Game:
         self.root.mainloop()
 
     def timer(self):
-        self.root.title(f"Search Play time: {int(time.time() - self.t)}s")
+        self.root.title(f"Search - Play time: {int(time.time() - self.t)}s")
         self.root.after(1000, self.timer)
 
     def create_window(self):
@@ -50,7 +50,7 @@ class Game:
                     return entity
         return False
 
-    def check_case(self, j_test, i_test):
+    def check_square(self, j_test, i_test):
         if self.board.check_walls(j_test, i_test):
             return "wall"
         else:
@@ -60,7 +60,7 @@ class Game:
         while True:
             i_test = np.random.randint(0, self.width)
             j_test = np.random.randint(0, self.height)
-            if not self.check_case(j_test, i_test):
+            if not self.check_square(j_test, i_test):
                 return j_test, i_test
 
 
@@ -138,12 +138,12 @@ class Entity:
     def move(self):
         i_test, j_test = self.i + self.speed_i, self.j + self.speed_j
         # if the player is in a portal
-        if isinstance(self.game.check_case(j_test, i_test), Portal):
+        if isinstance(self.game.check_square(j_test, i_test), Portal):
             j_test, i_test = self.get_portal(j_test, i_test)
             j_test += self.speed_j
             i_test += self.speed_i
 
-        case_touched = self.game.check_case(j_test, i_test)
+        case_touched = self.game.check_square(j_test, i_test)
 
         if not case_touched:
             self.i = i_test
@@ -268,14 +268,14 @@ class Enemy(Person):
                 players[1].j,
                 players[1].i,
             )
-            if self.game.board.Manhattan(
+            if self.game.board.manhattan(
                 start_node, player2_node
-            ) < self.game.board.Manhattan(start_node, end_node):
+            ) < self.game.board.manhattan(start_node, end_node):
                 end_node = player2_node
 
         g_score = {start_node: 0}  # actual cost from start_node to a node
         f_score = {
-            start_node: self.game.board.Manhattan(start_node, end_node)
+            start_node: self.game.board.manhattan(start_node, end_node)
         }  # sum of g_score and h_score
 
         frontier = queue.PriorityQueue()
@@ -307,7 +307,7 @@ class Enemy(Person):
 
                 if neighbor not in g_score:
                     g_score[neighbor] = tentative_g_score
-                    f_score[neighbor] = tentative_g_score + self.game.board.Manhattan(
+                    f_score[neighbor] = tentative_g_score + self.game.board.manhattan(
                         neighbor, end_node
                     )
                     frontier.put((f_score[neighbor], neighbor))
@@ -316,7 +316,7 @@ class Enemy(Person):
                 # update its g_score, f_score, and parent
                 elif tentative_g_score < g_score[neighbor]:
                     g_score[neighbor] = tentative_g_score
-                    f_score[neighbor] = tentative_g_score + self.game.board.Manhattan(
+                    f_score[neighbor] = tentative_g_score + self.game.board.manhattan(
                         neighbor, end_node
                     )
                     frontier.put((f_score[neighbor], neighbor))
@@ -397,7 +397,7 @@ class Board:
     def get_adj_coords(self, j, i):
         res = []
         for coords_adj in [(j + 1, i), (j - 1, i), (j, i + 1), (j, i - 1)]:
-            case_adj = self.game.check_case(*coords_adj)
+            case_adj = self.game.check_square(*coords_adj)
             if (
                 case_adj != "wall"
                 and not isinstance(case_adj, Portal)
@@ -406,8 +406,8 @@ class Board:
                 res.append(coords_adj)
         return res
 
-    def Manhattan(self, node1, node2):
-        """Manhattan distance"""
+    def manhattan(self, node1, node2):
+        """manhattan distance"""
         return abs(node1[0] - node2[0]) + abs(node1[1] - node2[1])
 
     def check_walls(self, j_test, i_test):
