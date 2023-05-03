@@ -1,7 +1,7 @@
 import tkinter as tk
 import numpy as np
-import time
-import queue
+import time, queue
+from PIL import ImageTk
 
 
 class Game:
@@ -67,7 +67,6 @@ class Entity:
         self.delete_orientation = False
         self.canshoot = True  # relate to the judgement of condition
         self.set_sprites()
-        
 
         # initialise orientation
         self.orientation = self.game.c.create_oval(0, 0, 0, 0, fill="yellow", edge=None)
@@ -80,32 +79,23 @@ class Entity:
 
     def set_sprites(self):
         self.num_sprites = 3
+        sprite_pixel = 48
+        self.spritesheet = ImageTk.PhotoImage(file=self.spritesheet_path)
         self.sprites = [
             [
-                self.subimage(32 * i, 0, 32 * (i + 1), 32)
+                self.subimage(*(sprite_pixel * np.array([i, j, i + 1, j + 1])))
                 for i in range(self.num_sprites)
-            ],
-            [
-                self.subimage(32 * i, 32, 32 * (i + 1), 64)
-                for i in range(self.num_sprites)
-            ],
-            [
-                self.subimage(32 * i, 64, 32 * (i + 1), 96)
-                for i in range(self.num_sprites)
-            ],
-            [
-                self.subimage(32 * i, 96, 32 * (i + 1), 128)
-                for i in range(self.num_sprites)
-            ],
+            ]
+            for j in range(4)
         ]
         self.sprite_dir = 0  # 0:down, 1:left, 2:right, 3:up
         self.sprite_index = 0
         self.shape = self.game.c.create_image(
             0, 0, image=self.sprites[self.sprite_dir][self.sprite_index]
         )
-        
+
     def subimage(self, l, t, r, b):
-        dst = tk.PhotoImage()   
+        dst = tk.PhotoImage()
         dst.tk.call(dst, "copy", self.spritesheet, "-from", l, t, r, b, "-to", 0, 0)
         return dst
 
@@ -188,7 +178,6 @@ class Entity:
     def move_control(self):
         pass
 
-
     def determine_sprite_dir(self, dir):
         # done by copilot
         if dir == [0, 1]:
@@ -204,7 +193,7 @@ class Entity:
 class Player(Entity):
     def caracter_init(self):
         self.speed = 15
-        self.spritesheet = tk.PhotoImage(file="./img/spritesheet1.png")
+        self.spritesheet_path = "./img/characters/Actor3.png"
 
         move_keys = (
             ["w", "s", "a", "d"]
@@ -254,7 +243,7 @@ class Player(Entity):
 class Enemy(Entity):
     def caracter_init(self):
         self.speed = 5
-        self.spritesheet = tk.PhotoImage(file="./img/spritesheet2.png")
+        self.spritesheet_path = "./img/characters/Monster.png"
 
     def move_control(self):
         self.pathfinding()
@@ -320,7 +309,7 @@ class Enemy(Entity):
 class Portal(Entity):
     def caracter_init(self):
         self.speed = 0.1
-        self.spritesheet = tk.PhotoImage(file="./img/spritesheet1.png")
+        self.spritesheet_path = "./img/characters/!Door2.png"
 
     def move_control(self):
         self.refresh()
@@ -335,10 +324,10 @@ class Portal(Entity):
                 self.j = j_test
                 break
 
+
 class Bullet(Entity):
     def caracter_init(self):
         pass
-
 
 
 class Board:
