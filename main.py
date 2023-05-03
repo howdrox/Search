@@ -101,7 +101,7 @@ class Entity:
             ]
             for j in range(4)
         ]
-        self.sprite_dir_update()
+        self.update_sprite_dir()
         self.sprite_index = 0
 
     def update_sprites(self, move_only=False):
@@ -182,7 +182,7 @@ class Entity:
     def move_control(self):
         pass
 
-    def sprite_dir_update(self):
+    def update_sprite_dir(self):
         if (self.speed_i, self.speed_j) in [(0, 1), (0, 0)]:
             self.sprite_dir = 0
         elif (self.speed_i, self.speed_j) == (-1, 0):
@@ -293,7 +293,7 @@ class Enemy(Entity):
                 self.speed_j = next_node[0] - start_node[0]
                 self.speed_i = next_node[1] - start_node[1]
                 self.direction = [self.speed_i, self.speed_j]
-                self.sprite_dir_update()
+                self.update_sprite_dir()
                 return 0
 
             for neighbor in self.game.board.get_adj_coords(*current):
