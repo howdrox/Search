@@ -187,6 +187,9 @@ class Entity:
         elif (self.speed_i, self.speed_j) == (0, -1):
             self.sprite_dir = 3
 
+        if isinstance(self, Portal) and self.numéro == 2:
+            self.sprite_dir = 3
+
 
 class Player(Entity):
     def caracter_init(self):
@@ -322,8 +325,8 @@ class Portal(Entity):
     def caracter_init(self):
         self.speed = 0.1
         self.spritesheet_path = "./img/characters/!Door2.png"
-        self.sprite_pos_in_sheet_i = 0 if self.numéro == 1 else 3
-        self.sprite_pos_in_sheet_j = 1
+        self.sprite_pos_in_sheet_i = 0
+        self.sprite_pos_in_sheet_j = 0
 
     def move_control(self):
         self.refresh()
