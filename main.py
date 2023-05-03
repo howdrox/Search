@@ -71,7 +71,7 @@ class Entity:
 
         # initialise orientation
         self.orientation = self.game.c.create_oval(0, 0, 0, 0, fill="yellow", edge=None)
-        self.show()
+        self.update_sprites()
         self.move_control()
 
     def caracter_init(self):
@@ -103,21 +103,19 @@ class Entity:
         ]
         self.sprite_dir_update()
         self.sprite_index = 0
-        self.shape = self.game.c.create_image(
-            0, 0, image=self.sprites[self.sprite_dir][self.sprite_index]
-        )
 
-    def show(self):
+    def update_sprites(self, move_only=False):
         case_size = self.game.case_size
-        self.game.c.delete(self.shape)
+        if hasattr(self, "shape"):
+            self.game.c.delete(self.shape)
         self.shape = self.game.c.create_image(
             *(case_size * (np.array([self.i, self.j]) + 0.5)),
             image=self.sprites[self.sprite_dir][self.sprite_index],
         )
 
         self.sprite_index = (self.sprite_index + 1) % self.num_ani_frames
-        # sprite loop
-        self.game.root.after(300, self.show)
+        if not move_only:
+            self.game.root.after(300, self.update_sprites)
 
     def update_rect(self):
         case_size = self.game.case_size
@@ -185,15 +183,14 @@ class Entity:
         pass
 
     def sprite_dir_update(self):
-        if (self.speed_i,self.speed_j) in [(0,1),(0,0)]:
+        if (self.speed_i, self.speed_j) in [(0, 1), (0, 0)]:
             self.sprite_dir = 0
-        elif (self.speed_i,self.speed_j) == (-1,0):
+        elif (self.speed_i, self.speed_j) == (-1, 0):
             self.sprite_dir = 1
-        elif (self.speed_i,self.speed_j) == (1,0):
+        elif (self.speed_i, self.speed_j) == (1, 0):
             self.sprite_dir = 2
-        elif (self.speed_i,self.speed_j) == (0,-1):
+        elif (self.speed_i, self.speed_j) == (0, -1):
             self.sprite_dir = 3
-
 
 
 class Player(Entity):
