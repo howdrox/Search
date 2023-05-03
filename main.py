@@ -9,7 +9,7 @@ class Game:
         self.t = time.time()
         self.width = width
         self.height = height  # nbr de case
-        self.case_size = 50  # pixel par case
+        self.case_size = 35  # pixel par case
 
         self.create_window()
         self.timer()
@@ -35,17 +35,17 @@ class Game:
         self.c.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
     def create_entities(self):
-        self.entities = {"player": [], "enemy": [], "portal": []}
-        self.entities["player"].append(Player(self, [1, 1], 1))
-        self.entities["player"].append(Player(self, [15, 16], 2))
-        self.entities["enemy"].append(Enemy(self, [10, 10], 1))
-        self.entities["enemy"].append(Enemy(self, [14, 7], 2))
-        self.entities["portal"].append(Portal(self, [4, 14], 1))
-        self.entities["portal"].append(Portal(self, [6, 19], 2))
+        self.entities = {"player": {}, "enemy": {}, "portal": {}}
+        self.entities["player"][1] = Player(self, self.get_random_empty_case(), 1)
+        self.entities["player"][2] = Player(self, self.get_random_empty_case(), 2)
+        self.entities["enemy"][1] = Enemy(self, self.get_random_empty_case(), 1)
+        self.entities["enemy"][2] = Enemy(self, self.get_random_empty_case(), 2)
+        self.entities["portal"][1] = Portal(self, self.get_random_empty_case(), 1)
+        self.entities["portal"][2] = Portal(self, self.get_random_empty_case(), 2)
 
     def check_entities(self, j_test, i_test):
-        for entity_list in self.entities.values():
-            for entity in entity_list:
+        for entity_dict in self.entities.values():
+            for entity in entity_dict.values():
                 if entity.j == j_test and entity.i == i_test:
                     return entity
         return False
@@ -55,13 +55,14 @@ class Game:
             return "wall"
         else:
             return self.check_entities(j_test, i_test)
-    
+
     def get_random_empty_case(self):
         while True:
             i_test = np.random.randint(0, self.width)
             j_test = np.random.randint(0, self.height)
             if not self.check_case(j_test, i_test):
-                return j_test,i_test
+                return j_test, i_test
+
 
 class Entity:
     def __init__(self, game, spawn_coord, numéro):
@@ -128,7 +129,7 @@ class Entity:
 
     def get_portal(self, j_test, i_test):
         # returns the coords of the portal
-        portal1, portal2 = self.game.entities["portal"]
+        portal1, portal2 = self.game.entities["portal"].values()
         if (j_test, i_test) == (portal1.j, portal1.i):
             return portal2.j, portal2.i
         else:
@@ -257,7 +258,7 @@ class Enemy(Person):
 
     def pathfinding(self):
         start_node = (self.j, self.i)
-        players = self.game.entities["player"]
+        players = list(self.game.entities["player"].values())
         end_node = (
             players[0].j,
             players[0].i,
@@ -360,8 +361,7 @@ class Board:
 
     def create_walls(self):
         # GENERATING RANDOM WALLS
-        # density = 0.1  # density of  walls
-        np.random.seed(2)
+        np.random.seed(10)
 
         # GENERATES WALLS FROM WALL_TYPES
         self.walls = np.zeros((self.game.height, self.game.width))
@@ -419,7 +419,7 @@ class Board:
 
 
 def main():
-    game = Game(17, 20)
+    game = Game(20, 35)
 
 
 if __name__ == "__main__":
