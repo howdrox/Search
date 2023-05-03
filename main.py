@@ -66,7 +66,7 @@ class Entity:
         self.direction = [999, 999]  # [up/down,left/right]
         self.delete_orientation = False
         self.canshoot = True  # relate to the judgement of condition
-        self.set_sprites()
+        self.create_sprites()
 
         # initialise orientation
         self.orientation = self.game.c.create_oval(0, 0, 0, 0, fill="yellow", edge=None)
@@ -77,7 +77,7 @@ class Entity:
     def caracter_init(self):
         pass
 
-    def set_sprites(self):
+    def create_sprites(self):
         self.num_ani_frames = 3
         sprite_pixel = 48
         self.spritesheet = Image.open(self.spritesheet_path)
