@@ -113,12 +113,6 @@ class Entity:
         if not move_only:
             self.game.root.after(300, self.update_sprites)
 
-    def check_portal(self, j_test, i_test):
-        # checks if the player is on the portal
-        return (j_test, i_test) in [
-            (portal.j, portal.i) for portal in self.game.entities["portal"]
-        ]
-
     def get_portal(self, j_test, i_test):
         # returns the coords of the portal
         portal1, portal2 = self.game.entities["portal"]
@@ -130,7 +124,7 @@ class Entity:
     def move(self):
         i_test, j_test = self.i + self.speed_i, self.j + self.speed_j
         # if the player is in a portal
-        if self.check_portal(j_test, i_test):
+        if isinstance(self.game.check_case(j_test, i_test), Portal):
             j_test, i_test = self.get_portal(j_test, i_test)
             j_test += self.speed_j
             i_test += self.speed_i
