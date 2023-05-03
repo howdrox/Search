@@ -9,7 +9,7 @@ class Game:
         self.t = time.time()
         self.width = width
         self.height = height  # nbr de case
-        self.r_size = 32  # pixel par case
+        self.r_size = 50  # pixel par case
 
         self.create_window()
         self.timer()
@@ -96,6 +96,9 @@ class Entity:
         self.speed_j, self.speed_i = 0, 0
         self.show()
         self.move_control()
+
+    def caracter_init(self):
+        pass
 
     def show(self):
         r_size = self.game.r_size
@@ -326,6 +329,11 @@ class Portal(Entity):
                 self.i = i_test
                 self.j = j_test
                 break
+
+class Bullet(Entity):
+    def caracter_init(self):
+        pass
+
 
 
 class Board:
