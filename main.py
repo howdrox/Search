@@ -113,11 +113,12 @@ class Entity:
         if not move_only:
             self.to_update_sprites = self.game.root.after(300, self.update_sprites)
 
-    
-    def destroy_sprites(self):        
+    def destroy(self):
         self.game.c.delete(self.shape)
         if hasattr(self, "to_update_sprites"):
             self.game.root.after_cancel(self.to_update_sprites)
+        if hasattr(self, "to_move_control"):
+            self.game.root.after_cancel(self.to_move_control)
 
     def get_portal(self, j_test, i_test):
         # returns the coords of the portal
@@ -143,14 +144,16 @@ class Entity:
             self.update_sprites(move_only=True)
         elif isinstance(self, Bullet):
             if case_touched == "wall":
-                self.destroy_sprites()
-                return '死了哈哈哈没了'
+                self.destroy()
+                return "死了哈哈哈没了"
             if isinstance(case_touched, Enemy):
-                case_touched.destroy_sprites()
-                self.destroy_sprites()
+                case_touched.destroy()
+                self.destroy()
                 return "die"
 
-        self.game.root.after(int(1000 / self.speed), self.move_control)
+        self.to_move_control = self.game.root.after(
+            int(1000 / self.speed), self.move_control
+        )
 
     def move_control(self):
         self.move()
@@ -176,12 +179,18 @@ class Entity:
 class Person(Entity):
     pass
 
+
 class Player(Person):
     def caracter_init(self):
         self.speed = 15
-        self.spritesheet_path = "./img/characters/Actor3.png"
-        self.sprite_pos_in_sheet_i = 2
-        self.sprite_pos_in_sheet_j = 1
+        if self.numéro == 1:
+            self.spritesheet_path = "./img/characters/Actor3.png"
+            self.sprite_pos_in_sheet_i = 2
+            self.sprite_pos_in_sheet_j = 1
+        else:
+            self.spritesheet_path = "./img/characters/Actor3.png"
+            self.sprite_pos_in_sheet_i = 3
+            self.sprite_pos_in_sheet_j = 0
 
         move_keys = (
             ["w", "s", "a", "d"]
@@ -336,7 +345,6 @@ class Bullet(Entity):
         self.sprite_pos_in_sheet_j = 1
 
 
-
 class Board:
     """
     les attributs de cette classe sont :
@@ -387,12 +395,16 @@ class Board:
                 )
 
     def get_adj_coords(self, j, i):
-        return [
-            (j + dj, i + di)
-            for dj in (-1, 0, 1)
-            for di in (-1, 0, 1)
-            if not self.check_walls(j + dj, i + di) and abs(dj) + abs(di) != 2
-        ]
+        res = []
+        for coords_adj in [(j + 1, i), (j - 1, i), (j, i + 1), (j, i - 1)]:
+            case_adj = self.game.check_case(*coords_adj)
+            if (
+                case_adj != "wall"
+                and not isinstance(case_adj, Portal)
+                and not isinstance(case_adj, Enemy)
+            ):
+                res.append(coords_adj)
+        return res
 
     def Manhattan(self, node1, node2):
         """Manhattan distance"""
