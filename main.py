@@ -66,7 +66,6 @@ class Entity:
         self.direction = [999, 999]  # [up/down,left/right]
         self.caracter_init()
         self.delete_orientation = False
-        self.canshoot = True  # relate to the judgement of condition
         self.create_sprites()
         self.update_sprites()
 
@@ -175,7 +174,7 @@ class Entity:
         self.game.root.after(int(1000 / self.speed), self.move_control)
 
     def move_control(self):
-        pass
+        self.move()
 
     def update_sprite_dir(self):
         if (self.speed_i, self.speed_j) in [(0, 1), (0, 0)]:
@@ -188,6 +187,8 @@ class Entity:
             self.sprite_dir = 3
 
         if isinstance(self, Portal) and self.numéro == 2:
+            self.sprite_dir = 3
+        elif isinstance(self, Bullet):
             self.sprite_dir = 3
 
 
@@ -210,9 +211,6 @@ class Player(Entity):
             self.game.root.bind(
                 f"<KeyRelease-{key}>", lambda e: self.key_speed_cancel(e.keysym)
             )
-
-    def move_control(self):
-        self.move()
 
     def key_speed_set(self, k):
         if k in ("Up", "w", "W"):
@@ -241,6 +239,7 @@ class Player(Entity):
             self.speed_j = 0
         elif k in ("Left", "a", "A", "Right", "d", "D"):
             self.speed_i = 0
+
 
 
 class Enemy(Entity):
@@ -344,7 +343,12 @@ class Portal(Entity):
 
 class Bullet(Entity):
     def caracter_init(self):
-        pass
+        self.speed = 20
+        self.spritesheet_path = "./img/characters/!Flame.png"
+        self.sprite_pos_in_sheet_i = 2
+        self.sprite_pos_in_sheet_j = 1
+
+    
 
 
 class Board:
