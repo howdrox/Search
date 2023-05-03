@@ -1,7 +1,7 @@
 import tkinter as tk
 import numpy as np
 import time, queue
-from PIL import ImageTk
+from PIL import Image, ImageTk
 
 
 class Game:
@@ -80,10 +80,24 @@ class Entity:
     def set_sprites(self):
         self.num_sprites = 3
         sprite_pixel = 48
-        self.spritesheet = ImageTk.PhotoImage(file=self.spritesheet_path)
+        self.spritesheet = Image.open(self.spritesheet_path)
+
         self.sprites = [
+            # *(sprite_pixel * np.array([i, j, i + 1, j + 1]))
             [
-                self.subimage(*(sprite_pixel * np.array([i, j, i + 1, j + 1])))
+                ImageTk.PhotoImage(
+                    self.spritesheet.crop(
+                        sprite_pixel
+                        * np.array(
+                            [
+                                self.sprite_pos_in_sheet_i * 3 + i,
+                                self.sprite_pos_in_sheet_j * 4 + j,
+                                self.sprite_pos_in_sheet_i * 3 + i + 1,
+                                self.sprite_pos_in_sheet_j * 4 + j + 1,
+                            ]
+                        )
+                    )
+                )
                 for i in range(self.num_sprites)
             ]
             for j in range(4)
@@ -93,11 +107,6 @@ class Entity:
         self.shape = self.game.c.create_image(
             0, 0, image=self.sprites[self.sprite_dir][self.sprite_index]
         )
-
-    def subimage(self, l, t, r, b):
-        dst = tk.PhotoImage()
-        dst.tk.call(dst, "copy", self.spritesheet, "-from", l, t, r, b, "-to", 0, 0)
-        return dst
 
     def show(self):
         r_size = self.game.r_size
@@ -194,6 +203,8 @@ class Player(Entity):
     def caracter_init(self):
         self.speed = 15
         self.spritesheet_path = "./img/characters/Actor3.png"
+        self.sprite_pos_in_sheet_i = 2
+        self.sprite_pos_in_sheet_j = 1
 
         move_keys = (
             ["w", "s", "a", "d"]
@@ -244,6 +255,8 @@ class Enemy(Entity):
     def caracter_init(self):
         self.speed = 5
         self.spritesheet_path = "./img/characters/Monster.png"
+        self.sprite_pos_in_sheet_i = 0
+        self.sprite_pos_in_sheet_j = 0
 
     def move_control(self):
         self.pathfinding()
@@ -310,6 +323,8 @@ class Portal(Entity):
     def caracter_init(self):
         self.speed = 0.1
         self.spritesheet_path = "./img/characters/!Door2.png"
+        self.sprite_pos_in_sheet_i = 0 if self.numéro==1 else 3
+        self.sprite_pos_in_sheet_j = 1
 
     def move_control(self):
         self.refresh()
