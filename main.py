@@ -78,10 +78,9 @@ class Entity:
         pass
 
     def set_sprites(self):
-        self.num_sprites = 3
+        self.num_ani_frames = 3
         sprite_pixel = 48
         self.spritesheet = Image.open(self.spritesheet_path)
-
         self.sprites = [
             # *(sprite_pixel * np.array([i, j, i + 1, j + 1]))
             [
@@ -98,7 +97,7 @@ class Entity:
                         )
                     )
                 )
-                for i in range(self.num_sprites)
+                for i in range(self.num_ani_frames)
             ]
             for j in range(4)
         ]
@@ -118,7 +117,7 @@ class Entity:
             image=self.sprites[self.sprite_dir][self.sprite_index],
         )
 
-        self.sprite_index = (self.sprite_index + 1) % self.num_sprites
+        self.sprite_index = (self.sprite_index + 1) % self.num_ani_frames
         # sprite loop
         self.game.root.after(400, self.show)
 
