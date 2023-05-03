@@ -173,7 +173,10 @@ class Entity:
             self.sprite_dir = 3
 
 
-class Player(Entity):
+class Person(Entity):
+    pass
+
+class Player(Person):
     def caracter_init(self):
         self.speed = 15
         self.spritesheet_path = "./img/characters/Actor3.png"
@@ -226,7 +229,7 @@ class Player(Entity):
             bullet.speed_j = self.orientation_j
 
 
-class Enemy(Entity):
+class Enemy(Person):
     def caracter_init(self):
         self.speed = 5
         self.spritesheet_path = "./img/characters/Monster.png"
