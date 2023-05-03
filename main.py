@@ -111,7 +111,7 @@ class Entity:
 
         self.sprite_index = (self.sprite_index + 1) % self.num_ani_frames
         if not move_only:
-            self.game.root.after(300, self.update_sprites)
+            self.to_update_sprites=self.game.root.after(300, self.update_sprites)
 
     def get_portal(self, j_test, i_test):
         # returns the coords of the portal
@@ -129,10 +129,17 @@ class Entity:
             j_test += self.speed_j
             i_test += self.speed_i
 
-        if not self.game.check_case(j_test, i_test):
+        case_touched = self.game.check_case(j_test, i_test)
+
+        if not case_touched:
             self.i = i_test
             self.j = j_test
             self.update_sprites(move_only=True)
+        elif case_touched == "wall" and isinstance(self, Bullet):
+            self.game.c.delete(self.shape)
+            if hasattr(self, "to_update_sprites"):
+                self.game.root.after_cancel(self.to_update_sprites)
+            return "the wall..."
 
         self.game.root.after(int(1000 / self.speed), self.move_control)
 
