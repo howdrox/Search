@@ -90,15 +90,17 @@ class Entity:
                 ImageTk.PhotoImage(
                     self.spritesheet.crop(
                         sprite_pixel
-                        * np.array(
-                            [
-                                self.sprite_pos_in_sheet_i * 3 + i,
-                                self.sprite_pos_in_sheet_j * 4 + j,
-                                self.sprite_pos_in_sheet_i * 3 + i + 1,
-                                self.sprite_pos_in_sheet_j * 4 + j + 1,
-                            ]
+                        * (
+                            np.array(
+                                [
+                                    self.sprite_pos_in_sheet_i * 3 + i,
+                                    self.sprite_pos_in_sheet_j * 4 + j,
+                                ]
+                                * 2
+                            )
+                            + (0, 0, 1, 1)
                         )
-                    ).resize((self.game.square_size, self.game.square_size))
+                    ).resize((self.game.square_size,) * 2)
                 )
                 for i in range(self.num_ani_frames)
             ]
@@ -202,9 +204,7 @@ class Player(Person):
             self.sprite_pos_in_sheet_j = 0
 
         move_keys = (
-            ["w", "s", "a", "d"]
-            if self.id == 1
-            else ["Up", "Down", "Left", "Right"]
+            ["w", "s", "a", "d"] if self.id == 1 else ["Up", "Down", "Left", "Right"]
         )
         for key in move_keys:
             self.game.root.bind(
@@ -358,8 +358,8 @@ class Board:
 
     def __init__(self, game):
         self.game = game
-        # where we store SHAPES of canvas.
         self.create_walls()
+        self.create_sprites()
 
     def create_walls(self):
         # GENERATING RANDOM WALLS
@@ -383,18 +383,50 @@ class Board:
         np.save("./gamedata/walls", self.walls)
         # # self.walls = np.load("gamedata/walls.npy")
 
+    def create_sprites(self):
+        sprite_pixel = 48
+        self.floor_spritesheet_path = "img/tilesets/Inside_A2.png"
+        self.floor_sprite = ImageTk.PhotoImage(
+            Image.open(self.floor_spritesheet_path)
+            .crop(sprite_pixel * (np.array([0, 0] * 2) + (0, 0, 1, 1)))
+            .resize((self.game.square_size,) * 2)
+        )
+        self.wall_spritesheet_path = "img/tilesets/Inside_B.png"
+        self.wall_sprite = ImageTk.PhotoImage(
+            Image.open(self.wall_spritesheet_path)
+            .crop(sprite_pixel * (np.array([8, 12] * 2) + (0, 0, 1, 1)))
+            .resize((self.game.square_size,) * 2)
+        )
+
     def show_walls(self):
         square_size = self.game.square_size
-        self.wall_rectangles = np.zeros((self.game.height, self.game.width))
-        for j in range(self.game.height):
-            for i in range(self.game.width):
-                self.wall_rectangles[j, i] = self.game.c.create_rectangle(
-                    i * square_size,
-                    j * square_size,
-                    (i + 1) * square_size,
-                    (j + 1) * square_size,
-                    fill="grey" if self.walls[j, i] else "white",
-                )
+        floor_shapes = np.array(
+            [
+                [
+                    self.game.c.create_image(
+                        *(square_size * (np.array([i, j]) + 0.5)),
+                        image=self.floor_sprite,
+                    )
+                    for i in range(self.game.width)
+                ]
+                for j in range(self.game.height)
+            ]
+        )
+
+        wall_shapes = np.array(
+            [
+                [
+                    self.game.c.create_image(
+                        *(square_size * (np.array([i, j]) + 0.5)),
+                        image=self.wall_sprite,
+                    )
+                    if self.walls[j, i]
+                    else 0
+                    for i in range(self.game.width)
+                ]
+                for j in range(self.game.height)
+            ]
+        )
 
     def get_adj_coords(self, j, i):
         res = []
