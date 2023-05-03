@@ -111,7 +111,13 @@ class Entity:
 
         self.sprite_index = (self.sprite_index + 1) % self.num_ani_frames
         if not move_only:
-            self.to_update_sprites=self.game.root.after(300, self.update_sprites)
+            self.to_update_sprites = self.game.root.after(300, self.update_sprites)
+
+    
+    def destroy_sprites(self):        
+        self.game.c.delete(self.shape)
+        if hasattr(self, "to_update_sprites"):
+            self.game.root.after_cancel(self.to_update_sprites)
 
     def get_portal(self, j_test, i_test):
         # returns the coords of the portal
@@ -135,11 +141,14 @@ class Entity:
             self.i = i_test
             self.j = j_test
             self.update_sprites(move_only=True)
-        elif case_touched == "wall" and isinstance(self, Bullet):
-            self.game.c.delete(self.shape)
-            if hasattr(self, "to_update_sprites"):
-                self.game.root.after_cancel(self.to_update_sprites)
-            return "the wall..."
+        elif isinstance(self, Bullet):
+            if case_touched == "wall":
+                self.destroy_sprites()
+                return '死了哈哈哈没了'
+            if isinstance(case_touched, Enemy):
+                case_touched.destroy_sprites()
+                self.destroy_sprites()
+                return "die"
 
         self.game.root.after(int(1000 / self.speed), self.move_control)
 
@@ -322,6 +331,7 @@ class Bullet(Entity):
         self.spritesheet_path = "./img/characters/!Flame.png"
         self.sprite_pos_in_sheet_i = 2
         self.sprite_pos_in_sheet_j = 1
+
 
 
 class Board:
