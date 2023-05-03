@@ -66,6 +66,19 @@ class Entity:
         self.direction = [999, 999]  # [up/down,left/right]
         self.delete_orientation = False
         self.canshoot = True  # relate to the judgement of condition
+        self.set_sprites()
+        
+
+        # initialise orientation
+        self.orientation = self.game.c.create_oval(0, 0, 0, 0, fill="yellow", edge=None)
+        self.speed_j, self.speed_i = 0, 0
+        self.show()
+        self.move_control()
+
+    def caracter_init(self):
+        pass
+
+    def set_sprites(self):
         self.num_sprites = 3
         self.sprites = [
             [
@@ -90,15 +103,11 @@ class Entity:
         self.shape = self.game.c.create_image(
             0, 0, image=self.sprites[self.sprite_dir][self.sprite_index]
         )
-
-        # initialise orientation
-        self.orientation = self.game.c.create_oval(0, 0, 0, 0, fill="yellow", edge=None)
-        self.speed_j, self.speed_i = 0, 0
-        self.show()
-        self.move_control()
-
-    def caracter_init(self):
-        pass
+        
+    def subimage(self, l, t, r, b):
+        dst = tk.PhotoImage()   
+        dst.tk.call(dst, "copy", self.spritesheet, "-from", l, t, r, b, "-to", 0, 0)
+        return dst
 
     def show(self):
         r_size = self.game.r_size
@@ -179,10 +188,6 @@ class Entity:
     def move_control(self):
         pass
 
-    def subimage(self, l, t, r, b):
-        dst = tk.PhotoImage()
-        dst.tk.call(dst, "copy", self.spritesheet, "-from", l, t, r, b, "-to", 0, 0)
-        return dst
 
     def determine_sprite_dir(self, dir):
         # done by copilot
