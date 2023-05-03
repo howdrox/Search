@@ -253,13 +253,25 @@ class Enemy(Entity):
 
     def pathfinding(self):
         start_node = (self.j, self.i)
+        players = self.game.entities["player"]
         end_node = (
-            self.game.entities["player"][0].j,
-            self.game.entities["player"][0].i,
+            players[0].j,
+            players[0].i,
         )
+        if len(players) == 2:
+            player2_node = (
+                players[1].j,
+                players[1].i,
+            )
+            if self.game.board.Manhattan(
+                start_node, player2_node
+            ) < self.game.board.Manhattan(start_node, end_node):
+                end_node = player2_node
 
         g_score = {start_node: 0}  # actual cost from start_node to a node
-        f_score = {start_node: self.game.board.Manhattan(start_node,end_node)}  # sum of g_score and h_score
+        f_score = {
+            start_node: self.game.board.Manhattan(start_node, end_node)
+        }  # sum of g_score and h_score
 
         frontier = queue.PriorityQueue()
         frontier.put((f_score[start_node], start_node))
@@ -290,14 +302,18 @@ class Enemy(Entity):
 
                 if neighbor not in g_score:
                     g_score[neighbor] = tentative_g_score
-                    f_score[neighbor] = tentative_g_score + self.game.board.Manhattan(neighbor,end_node)
+                    f_score[neighbor] = tentative_g_score + self.game.board.Manhattan(
+                        neighbor, end_node
+                    )
                     frontier.put((f_score[neighbor], neighbor))
                     came_from[neighbor] = current
                 # If the neighbor is in the frontier and the tentative g_score is lower,
                 # update its g_score, f_score, and parent
                 elif tentative_g_score < g_score[neighbor]:
                     g_score[neighbor] = tentative_g_score
-                    f_score[neighbor] = tentative_g_score + self.game.board.Manhattan(neighbor,end_node)
+                    f_score[neighbor] = tentative_g_score + self.game.board.Manhattan(
+                        neighbor, end_node
+                    )
                     frontier.put((f_score[neighbor], neighbor))
                     came_from[neighbor] = current
 
@@ -385,7 +401,7 @@ class Board:
             if not self.check_walls(j + dj, i + di) and abs(dj) + abs(di) != 2
         ]
 
-    def Manhattan(self,node1, node2):
+    def Manhattan(self, node1, node2):
         """Manhattan distance"""
         return abs(node1[0] - node2[0]) + abs(node1[1] - node2[1])
 
