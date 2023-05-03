@@ -9,7 +9,7 @@ class Game:
         self.t = time.time()
         self.width = width
         self.height = height  # nbr de case
-        self.r_size = 50  # pixel par case
+        self.case_size = 50  # pixel par case
 
         self.create_window()
         self.timer()
@@ -24,8 +24,8 @@ class Game:
         self.root.after(1000, self.timer)
 
     def create_window(self):
-        self.c_width = self.width * self.r_size
-        self.c_height = self.height * self.r_size  # canvas size (in pixel)
+        self.c_width = self.width * self.case_size
+        self.c_height = self.height * self.case_size  # canvas size (in pixel)
         self.root = tk.Tk()
         self.root.geometry(f"{self.c_width + 20}x{self.c_height + 20}")
         self.root.title("Search")
@@ -108,12 +108,12 @@ class Entity:
         )
 
     def show(self):
-        r_size = self.game.r_size
-        x, y = self.i * r_size, self.j * r_size + 32
+        case_size = self.game.case_size
+        x, y = self.i * case_size, self.j * case_size + 32
         self.game.c.delete(self.shape)
         self.shape = self.game.c.create_image(
-            x + r_size / 2,
-            y - r_size / 2,
+            x + case_size / 2,
+            y - case_size / 2,
             image=self.sprites[self.sprite_dir][self.sprite_index],
         )
 
@@ -122,12 +122,12 @@ class Entity:
         self.game.root.after(400, self.show)
 
     def update_rect(self):
-        r_size = self.game.r_size
-        x, y = self.i * r_size, self.j * r_size
+        case_size = self.game.case_size
+        x, y = self.i * case_size, self.j * case_size
         self.game.c.moveto(self.shape, x, y)
 
     def update_orientation(self):
-        r_size = self.game.r_size
+        case_size = self.game.case_size
         i_orientation_test = self.i + self.direction[0]
         j_orientation_test = self.j + self.direction[1]
         if (
@@ -137,15 +137,15 @@ class Entity:
             self.i_orientation = i_orientation_test
             self.j_orientation = j_orientation_test
             x_orientation, y_orientation = (
-                self.i_orientation * r_size,
-                self.j_orientation * r_size,
+                self.i_orientation * case_size,
+                self.j_orientation * case_size,
             )
             self.game.c.delete(self.orientation)
             self.orientation = self.game.c.create_oval(
-                x_orientation + 0.42 * r_size,
-                y_orientation + 0.42 * r_size,
-                x_orientation + 0.58 * r_size,
-                y_orientation + 0.58 * r_size,
+                x_orientation + 0.42 * case_size,
+                y_orientation + 0.42 * case_size,
+                x_orientation + 0.58 * case_size,
+                y_orientation + 0.58 * case_size,
                 fill="orange",
                 edge=None,
                 width=0,
@@ -381,15 +381,15 @@ class Board:
         # # self.walls = np.load("gamedata/walls.npy")
 
     def show_walls(self):
-        r_size = self.game.r_size
+        case_size = self.game.case_size
         self.wall_rectangles = np.zeros((self.game.height, self.game.width))
         for j in range(self.game.height):
             for i in range(self.game.width):
                 self.wall_rectangles[j, i] = self.game.c.create_rectangle(
-                    i * r_size,
-                    j * r_size,
-                    (i + 1) * r_size,
-                    (j + 1) * r_size,
+                    i * case_size,
+                    j * case_size,
+                    (i + 1) * case_size,
+                    (j + 1) * case_size,
                     fill="grey" if self.walls[j, i] else "white",
                 )
 
