@@ -62,15 +62,15 @@ class Entity:
         self.game = game
         self.j, self.i = spawn_coord
         self.numéro = numéro
-        self.caracter_init()
+        self.speed_j, self.speed_i = 0, 0
         self.direction = [999, 999]  # [up/down,left/right]
+        self.caracter_init()
         self.delete_orientation = False
         self.canshoot = True  # relate to the judgement of condition
         self.create_sprites()
 
         # initialise orientation
         self.orientation = self.game.c.create_oval(0, 0, 0, 0, fill="yellow", edge=None)
-        self.speed_j, self.speed_i = 0, 0
         self.show()
         self.move_control()
 
@@ -101,7 +101,7 @@ class Entity:
             ]
             for j in range(4)
         ]
-        self.sprite_dir = 0
+        self.sprite_dir_update()
         self.sprite_index = 0
         self.shape = self.game.c.create_image(
             0, 0, image=self.sprites[self.sprite_dir][self.sprite_index]
@@ -184,16 +184,16 @@ class Entity:
     def move_control(self):
         pass
 
-    def determine_sprite_dir(self, dir):
-        # done by copilot
-        if dir == [0, 1]:
-            return 0
-        elif dir == [-1, 0]:
-            return 1
-        elif dir == [1, 0]:
-            return 2
-        elif dir == [0, -1]:
-            return 3
+    def sprite_dir_update(self):
+        if (self.speed_i,self.speed_j) in [(0,1),(0,0)]:
+            self.sprite_dir = 0
+        elif (self.speed_i,self.speed_j) == (-1,0):
+            self.sprite_dir = 1
+        elif (self.speed_i,self.speed_j) == (1,0):
+            self.sprite_dir = 2
+        elif (self.speed_i,self.speed_j) == (0,-1):
+            self.sprite_dir = 3
+
 
 
 class Player(Entity):
@@ -296,7 +296,7 @@ class Enemy(Entity):
                 self.speed_j = next_node[0] - start_node[0]
                 self.speed_i = next_node[1] - start_node[1]
                 self.direction = [self.speed_i, self.speed_j]
-                self.sprite_dir = self.determine_sprite_dir(self.direction)
+                self.sprite_dir_update()
                 return 0
 
             for neighbor in self.game.board.get_adj_coords(*current):
