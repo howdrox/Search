@@ -9,23 +9,23 @@ class Game:
         self.t = time.time()
         self.width = width
         self.height = height  # nbr de case
-        self.case_size = 35  # pixel par case
+        self.square_size = 35  # pixel par case
 
         self.create_window()
-        self.timer()
+        self.timer_title()
         self.create_canvas()
         self.board = Board(self)
         self.board.show_walls()
         self.create_entities()
         self.root.mainloop()
 
-    def timer(self):
-        self.root.title(f"Search - Play time: {int(time.time() - self.t)}s")
-        self.root.after(1000, self.timer)
+    def timer_title(self):
+        self.root.title(f"Search - Time Played: {int(time.time() - self.t)}s")
+        # self.root.after(10000, self.timer_title())
 
     def create_window(self):
-        self.c_width = self.width * self.case_size
-        self.c_height = self.height * self.case_size  # canvas size (in pixel)
+        self.c_width = self.width * self.square_size
+        self.c_height = self.height * self.square_size  # canvas size (in pixel)
         self.root = tk.Tk()
         self.root.geometry(f"{self.c_width + 20}x{self.c_height + 20}")
         self.root.title("Search")
@@ -36,12 +36,12 @@ class Game:
 
     def create_entities(self):
         self.entities = {"player": {}, "enemy": {}, "portal": {}}
-        self.entities["player"][1] = Player(self, self.get_random_empty_case(), 1)
-        self.entities["player"][2] = Player(self, self.get_random_empty_case(), 2)
-        self.entities["enemy"][1] = Enemy(self, self.get_random_empty_case(), 1)
-        self.entities["enemy"][2] = Enemy(self, self.get_random_empty_case(), 2)
-        self.entities["portal"][1] = Portal(self, self.get_random_empty_case(), 1)
-        self.entities["portal"][2] = Portal(self, self.get_random_empty_case(), 2)
+        self.entities["player"][1] = Player(self, self.get_random_empty_square(), 1)
+        self.entities["player"][2] = Player(self, self.get_random_empty_square(), 2)
+        self.entities["enemy"][1] = Enemy(self, self.get_random_empty_square(), 1)
+        self.entities["enemy"][2] = Enemy(self, self.get_random_empty_square(), 2)
+        self.entities["portal"][1] = Portal(self, self.get_random_empty_square(), 1)
+        self.entities["portal"][2] = Portal(self, self.get_random_empty_square(), 2)
 
     def check_entities(self, j_test, i_test):
         for entity_dict in self.entities.values():
@@ -56,7 +56,7 @@ class Game:
         else:
             return self.check_entities(j_test, i_test)
 
-    def get_random_empty_case(self):
+    def get_random_empty_square(self):
         while True:
             i_test = np.random.randint(0, self.width)
             j_test = np.random.randint(0, self.height)
@@ -65,10 +65,10 @@ class Game:
 
 
 class Entity:
-    def __init__(self, game, spawn_coord, numéro):
+    def __init__(self, game, spawn_coord, number):
         self.game = game
         self.j, self.i = spawn_coord
-        self.numéro = numéro
+        self.number = number
         self.speed_j, self.speed_i = 0, 0
         self.orientation_j, self.orientation_i = 1, 0
         self.caracter_init()
@@ -98,7 +98,7 @@ class Entity:
                                 self.sprite_pos_in_sheet_j * 4 + j + 1,
                             ]
                         )
-                    ).resize((self.game.case_size, self.game.case_size))
+                    ).resize((self.game.square_size, self.game.square_size))
                 )
                 for i in range(self.num_ani_frames)
             ]
@@ -108,11 +108,11 @@ class Entity:
         self.sprite_index = 0
 
     def update_sprites(self, move_only=False):
-        case_size = self.game.case_size
+        square_size = self.game.square_size
         if hasattr(self, "shape"):
             self.game.c.delete(self.shape)
         self.shape = self.game.c.create_image(
-            *(case_size * (np.array([self.i, self.j]) + 0.5)),
+            *(square_size * (np.array([self.i, self.j]) + 0.5)),
             image=self.sprites[self.sprite_dir][self.sprite_index],
         )
 
@@ -143,18 +143,18 @@ class Entity:
             j_test += self.speed_j
             i_test += self.speed_i
 
-        case_touched = self.game.check_square(j_test, i_test)
+        square_touched = self.game.check_square(j_test, i_test)
 
-        if not case_touched:
+        if not square_touched:
             self.i = i_test
             self.j = j_test
             self.update_sprites(move_only=True)
         elif isinstance(self, Bullet):
-            if case_touched == "wall":
+            if square_touched == "wall":
                 self.destroy()
                 return "死了哈哈哈没了"
-            if isinstance(case_touched, Enemy):
-                case_touched.destroy()
+            if isinstance(square_touched, Enemy):
+                square_touched.destroy()
                 self.destroy()
                 return "die"
 
@@ -177,7 +177,7 @@ class Entity:
         else:
             raise ValueError("orientation not recognized")
 
-        if isinstance(self, Portal) and self.numéro == 2:
+        if isinstance(self, Portal) and self.number == 2:
             self.sprite_dir = 3
         elif isinstance(self, Bullet):
             self.sprite_dir = 3
@@ -190,7 +190,7 @@ class Person(Entity):
 class Player(Person):
     def caracter_init(self):
         self.speed = 15
-        if self.numéro == 1:
+        if self.number == 1:
             self.spritesheet_path = "./img/characters/Actor3.png"
             self.sprite_pos_in_sheet_i = 2
             self.sprite_pos_in_sheet_j = 1
@@ -201,7 +201,7 @@ class Player(Person):
 
         move_keys = (
             ["w", "s", "a", "d"]
-            if self.numéro == 1
+            if self.number == 1
             else ["Up", "Down", "Left", "Right"]
         )
         for key in move_keys:
@@ -211,7 +211,7 @@ class Player(Person):
             self.game.root.bind(
                 f"<KeyRelease-{key}>", lambda e: self.key_speed_cancel(e.keysym)
             )
-        attack_key = "q" if self.numéro == 1 else "/"
+        attack_key = "q" if self.number == 1 else "/"
         self.game.root.bind(f"<KeyPress-{attack_key}>", lambda e: self.shoot(e.keysym))
 
     def key_speed_set(self, k):
@@ -240,7 +240,7 @@ class Player(Person):
         bullet_j = self.j + self.speed_j
         bullet_i = self.i + self.speed_i
         if not self.game.board.check_walls(bullet_j, bullet_i):
-            bullet = Bullet(self.game, (bullet_j, bullet_i), self.numéro)
+            bullet = Bullet(self.game, (bullet_j, bullet_i), self.number)
             bullet.speed_i = self.orientation_i
             bullet.speed_j = self.orientation_j
 
@@ -335,7 +335,7 @@ class Portal(Entity):
         self.move()
 
     def refresh(self):
-        self.j, self.i = self.game.get_random_empty_case()
+        self.j, self.i = self.game.get_random_empty_square()
 
 
 class Bullet(Entity):
@@ -382,15 +382,15 @@ class Board:
         # # self.walls = np.load("gamedata/walls.npy")
 
     def show_walls(self):
-        case_size = self.game.case_size
+        square_size = self.game.square_size
         self.wall_rectangles = np.zeros((self.game.height, self.game.width))
         for j in range(self.game.height):
             for i in range(self.game.width):
                 self.wall_rectangles[j, i] = self.game.c.create_rectangle(
-                    i * case_size,
-                    j * case_size,
-                    (i + 1) * case_size,
-                    (j + 1) * case_size,
+                    i * square_size,
+                    j * square_size,
+                    (i + 1) * square_size,
+                    (j + 1) * square_size,
                     fill="grey" if self.walls[j, i] else "white",
                 )
 
