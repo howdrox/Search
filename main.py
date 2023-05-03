@@ -55,7 +55,13 @@ class Game:
             return "wall"
         else:
             return self.check_entities(j_test, i_test)
-
+    
+    def get_random_empty_case(self):
+        while True:
+            i_test = np.random.randint(0, self.width)
+            j_test = np.random.randint(0, self.height)
+            if not self.check_case(j_test, i_test):
+                return j_test,i_test
 
 class Entity:
     def __init__(self, game, spawn_coord, numéro):
@@ -328,13 +334,7 @@ class Portal(Entity):
         self.move()
 
     def refresh(self):
-        while True:
-            i_test = np.random.randint(0, self.game.width)
-            j_test = np.random.randint(0, self.game.height)
-            if not self.game.check_case(j_test, i_test):
-                self.i = i_test
-                self.j = j_test
-                break
+        self.j, self.i = self.game.get_random_empty_case()
 
 
 class Bullet(Entity):
