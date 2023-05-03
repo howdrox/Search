@@ -44,10 +44,10 @@ class Game:
         self.entities["portal"].append(Portal(self, [6, 19], 2))
 
     def check_entities(self, j_test, i_test):
-        for entity_type, entity_list in self.entities.items():
+        for entity_list in self.entities.values():
             for entity in entity_list:
                 if entity.j == j_test and entity.i == i_test:
-                    return entity_type, entity
+                    return entity
         return False
 
     def check_case(self, j_test, i_test):
@@ -63,14 +63,11 @@ class Entity:
         self.j, self.i = spawn_coord
         self.numéro = numéro
         self.speed_j, self.speed_i = 0, 0
-        self.direction = [999, 999]  # [up/down,left/right]
+        self.orientation_j, self.orientation_i = 1, 0
         self.caracter_init()
         self.delete_orientation = False
         self.create_sprites()
         self.update_sprites()
-
-        # initialise orientation
-        self.orientation = self.game.c.create_oval(0, 0, 0, 0, fill="yellow", edge=None)
         self.move_control()
 
     def caracter_init(self):
@@ -116,33 +113,6 @@ class Entity:
         if not move_only:
             self.game.root.after(300, self.update_sprites)
 
-    def update_orientation(self):
-        case_size = self.game.case_size
-        i_orientation_test = self.i + self.direction[0]
-        j_orientation_test = self.j + self.direction[1]
-        if (
-            not self.game.board.check_walls(j_orientation_test, i_orientation_test)
-            and self.delete_orientation == False
-        ):
-            self.i_orientation = i_orientation_test
-            self.j_orientation = j_orientation_test
-            x_orientation, y_orientation = (
-                self.i_orientation * case_size,
-                self.j_orientation * case_size,
-            )
-            self.game.c.delete(self.orientation)
-            self.orientation = self.game.c.create_oval(
-                x_orientation + 0.42 * case_size,
-                y_orientation + 0.42 * case_size,
-                x_orientation + 0.58 * case_size,
-                y_orientation + 0.58 * case_size,
-                fill="orange",
-                edge=None,
-                width=0,
-            )
-        else:
-            self.game.c.delete(self.orientation)
-
     def check_portal(self, j_test, i_test):
         # checks if the player is on the portal
         return (j_test, i_test) in [
@@ -170,21 +140,22 @@ class Entity:
             self.j = j_test
             self.update_sprites(move_only=True)
 
-        self.update_orientation()
         self.game.root.after(int(1000 / self.speed), self.move_control)
 
     def move_control(self):
         self.move()
 
     def update_sprite_dir(self):
-        if (self.speed_i, self.speed_j) in [(0, 1), (0, 0)]:
+        if (self.orientation_i, self.orientation_j) == (0, 1):
             self.sprite_dir = 0
-        elif (self.speed_i, self.speed_j) == (-1, 0):
+        elif (self.orientation_i, self.orientation_j) == (-1, 0):
             self.sprite_dir = 1
-        elif (self.speed_i, self.speed_j) == (1, 0):
+        elif (self.orientation_i, self.orientation_j) == (1, 0):
             self.sprite_dir = 2
-        elif (self.speed_i, self.speed_j) == (0, -1):
+        elif (self.orientation_i, self.orientation_j) == (0, -1):
             self.sprite_dir = 3
+        else:
+            raise ValueError("orientation not recognized")
 
         if isinstance(self, Portal) and self.numéro == 2:
             self.sprite_dir = 3
@@ -211,28 +182,24 @@ class Player(Entity):
             self.game.root.bind(
                 f"<KeyRelease-{key}>", lambda e: self.key_speed_cancel(e.keysym)
             )
+        attack_key = "q" if self.numéro == 1 else "/"
+        self.game.root.bind(f"<KeyPress-{attack_key}>", lambda e: self.shoot(e.keysym))
 
     def key_speed_set(self, k):
         if k in ("Up", "w", "W"):
             self.speed_i = 0
             self.speed_j = -1
-            self.direction = [0, -1]
-            self.sprite_dir = 3
         elif k in ("Left", "a", "A"):
             self.speed_i = -1
             self.speed_j = 0
-            self.direction = [-1, 0]
-            self.sprite_dir = 1
         elif k in ("Down", "s", "S"):
             self.speed_i = 0
             self.speed_j = 1
-            self.direction = [0, 1]
-            self.sprite_dir = 0
         elif k in ("Right", "d", "D"):
             self.speed_i = 1
             self.speed_j = 0
-            self.direction = [1, 0]
-            self.sprite_dir = 2
+        self.orientation_i, self.orientation_j = self.speed_i, self.speed_j
+        self.update_sprite_dir()
 
     def key_speed_cancel(self, k):
         if k in ("Up", "w", "W", "Down", "s", "S"):
@@ -240,6 +207,13 @@ class Player(Entity):
         elif k in ("Left", "a", "A", "Right", "d", "D"):
             self.speed_i = 0
 
+    def shoot(self, k):
+        bullet_j = self.j + self.speed_j
+        bullet_i = self.i + self.speed_i
+        if not self.game.board.check_walls(bullet_j, bullet_i):
+            bullet = Bullet(self.game, (bullet_j, bullet_i), self.numéro)
+            bullet.speed_i = self.orientation_i
+            bullet.speed_j = self.orientation_j
 
 
 class Enemy(Entity):
@@ -295,7 +269,7 @@ class Enemy(Entity):
                 next_node = path[-1]
                 self.speed_j = next_node[0] - start_node[0]
                 self.speed_i = next_node[1] - start_node[1]
-                self.direction = [self.speed_i, self.speed_j]
+                self.orientation_j, self.orientation_i = self.speed_j, self.speed_i
                 self.update_sprite_dir()
                 return 0
 
@@ -347,8 +321,6 @@ class Bullet(Entity):
         self.spritesheet_path = "./img/characters/!Flame.png"
         self.sprite_pos_in_sheet_i = 2
         self.sprite_pos_in_sheet_j = 1
-
-    
 
 
 class Board:
