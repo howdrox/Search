@@ -126,6 +126,8 @@ class Entity:
             self.game.root.after_cancel(self.to_update_sprites)
         if hasattr(self, "to_move_control"):
             self.game.root.after_cancel(self.to_move_control)
+        if isinstance(self, Person):
+            del self.game.entities[self.__class__.__name__.lower()][self.numéro]
 
     def get_portal(self, j_test, i_test):
         # returns the coords of the portal
