@@ -9,7 +9,7 @@ class Game:
         self.t = time.time()
         self.width = width
         self.height = height  # nbr de case
-        self.square_size = 35  # pixel par case
+        self.square_size = 45  # pixel par case
 
         self.create_window()
         self.timer_title()
@@ -453,7 +453,7 @@ class Board:
 
 
 def main():
-    game = Game(20, 35)
+    game = Game(15, 20)
 
 
 if __name__ == "__main__":
