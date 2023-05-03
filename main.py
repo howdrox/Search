@@ -21,7 +21,7 @@ class Game:
 
     def timer_title(self):
         self.root.title(f"Search - Time Played: {int(time.time() - self.t)}s")
-        # self.root.after(10000, self.timer_title())
+        self.root.after(1000, self.timer_title)
 
     def create_window(self):
         self.c_width = self.width * self.square_size
@@ -65,10 +65,10 @@ class Game:
 
 
 class Entity:
-    def __init__(self, game, spawn_coord, number):
+    def __init__(self, game, spawn_coord, id):
         self.game = game
         self.j, self.i = spawn_coord
-        self.number = number
+        self.id = id
         self.speed_j, self.speed_i = 0, 0
         self.orientation_j, self.orientation_i = 1, 0
         self.caracter_init()
@@ -127,7 +127,7 @@ class Entity:
         if hasattr(self, "to_move_control"):
             self.game.root.after_cancel(self.to_move_control)
         if isinstance(self, Person):
-            del self.game.entities[self.__class__.__name__.lower()][self.numéro]
+            del self.game.entities[self.__class__.__name__.lower()][self.id]
 
     def get_portal(self, j_test, i_test):
         # returns the coords of the portal
@@ -179,7 +179,7 @@ class Entity:
         else:
             raise ValueError("orientation not recognized")
 
-        if isinstance(self, Portal) and self.number == 2:
+        if isinstance(self, Portal) and self.id == 2:
             self.sprite_dir = 3
         elif isinstance(self, Bullet):
             self.sprite_dir = 3
@@ -192,7 +192,7 @@ class Person(Entity):
 class Player(Person):
     def caracter_init(self):
         self.speed = 15
-        if self.number == 1:
+        if self.id == 1:
             self.spritesheet_path = "./img/characters/Actor3.png"
             self.sprite_pos_in_sheet_i = 2
             self.sprite_pos_in_sheet_j = 1
@@ -203,7 +203,7 @@ class Player(Person):
 
         move_keys = (
             ["w", "s", "a", "d"]
-            if self.number == 1
+            if self.id == 1
             else ["Up", "Down", "Left", "Right"]
         )
         for key in move_keys:
@@ -213,7 +213,7 @@ class Player(Person):
             self.game.root.bind(
                 f"<KeyRelease-{key}>", lambda e: self.key_speed_cancel(e.keysym)
             )
-        attack_key = "q" if self.number == 1 else "/"
+        attack_key = "q" if self.id == 1 else "/"
         self.game.root.bind(f"<KeyPress-{attack_key}>", lambda e: self.shoot(e.keysym))
 
     def key_speed_set(self, k):
@@ -242,7 +242,7 @@ class Player(Person):
         bullet_j = self.j + self.speed_j
         bullet_i = self.i + self.speed_i
         if not self.game.board.check_walls(bullet_j, bullet_i):
-            bullet = Bullet(self.game, (bullet_j, bullet_i), self.number)
+            bullet = Bullet(self.game, (bullet_j, bullet_i), self.id)
             bullet.speed_i = self.orientation_i
             bullet.speed_j = self.orientation_j
 
