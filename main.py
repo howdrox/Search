@@ -7,8 +7,8 @@ from PIL import Image, ImageTk
 class Game:
     def __init__(self, height, width, enemy_number):
         self.t = time.time()
-        self.width = width
-        self.height = height  # nbr de case
+        self.width = width + (width % 2 == 0)
+        self.height = height + (height % 2 == 0)  # nbr de case
         self.square_size = 45  # pixel par case
         self.enemy_number = enemy_number
         self.create_window()
@@ -389,52 +389,47 @@ class Board:
 
     def create_walls(self):
         # GENERATING RANDOM WALLS
-        # np.random.seed(233)
+        np.random.seed(233)
 
         def allow_visit(j, i):
             return (
-                0 <= j < self.game.height
-                and 0 <= i < self.game.width
+                j not in [0, self.game.height - 1]
+                and i not in [0, self.game.width - 1]
                 and (j, i)
                 not in [to_visit_cood for to_visit_cood, parent_cood in to_visit]
-                and (j, i) not in visited
+                and (j, i) not in visited_path
             )
 
         def mark_to_visit(j, i):
-            adj_coords = [(j + 1, i), (j - 1, i), (j, i + 1), (j, i - 1)]
-            while adj_coords:
-                adj_coord=adj_coords.pop(np.random.randint(0, len(adj_coords)))
+            for adj_coord in [(j + 1, i), (j - 1, i), (j, i + 1), (j, i - 1)]:
                 if allow_visit(*adj_coord):
                     to_visit.append((adj_coord, (j, i)))
 
-        # GENERATES WALLS FROM WALL_TYPES
-        self.walls = np.ones((self.game.height, self.game.width))
-        begin_j, begin_i = np.random.randint(0, self.game.height), np.random.randint(
-            0, self.game.width
-        )
-        self.walls[begin_j, begin_i] = 0
-        visited = {(begin_j, begin_i)}
+        X, Y = np.meshgrid(np.arange(self.game.width), np.arange(self.game.height))
+        self.walls = (X % 2 == 0) | (Y % 2 == 0)
+
+        while True:
+            begin_j, begin_i = np.random.randint(
+                0, self.game.height
+            ), np.random.randint(0, self.game.width)
+            if begin_j % 2 and begin_i % 2:
+                break
+        visited_island = {(begin_j, begin_i)}
+        visited_path = set()
         to_visit = []
         mark_to_visit(begin_j, begin_i)
         while to_visit:
-            (visiting_cood, parent_cood) = (
-                to_visit.pop()
-                if len(to_visit) < self.maze_chaos
-                else to_visit.pop(-np.random.randint(1, self.maze_chaos + 1))
+            (visiting_cood, parent_cood) = to_visit.pop(
+                np.random.randint(len(to_visit))
             )
-
-            visited.add(visiting_cood)
             visiting_j, visiting_i = visiting_cood
             detect_j, detect_i = np.array(visiting_cood) * 2 - np.array(parent_cood)
-            if not (
-                0 <= detect_j < self.game.height and 0 <= detect_i < self.game.width
-            ):
+            visited_path.add(visiting_cood)
+            if (detect_j, detect_i) not in visited_island:
+                self.walls[detect_j, detect_i] = 0
                 self.walls[visiting_j, visiting_i] = 0
-            elif self.walls[detect_j, detect_i] == 1:
-                self.walls[visiting_j, visiting_i] = 0
-            elif np.random.random() > self.wall_density:
-                self.walls[visiting_j, visiting_i] = 0
-            mark_to_visit(visiting_j, visiting_i)
+            visited_island.add((detect_j, detect_i))
+            mark_to_visit(detect_j, detect_i)
 
         np.save("./gamedata/walls", self.walls)
         # self.walls = np.load("gamedata/walls.npy")
@@ -509,7 +504,7 @@ class Board:
 
 
 def main():
-    game = Game(18, 32, enemy_number=4)
+    game = Game(18, 32, enemy_number=2)
 
 
 if __name__ == "__main__":
