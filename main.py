@@ -369,14 +369,14 @@ class Board:
             return (
                 0 <= j < self.game.height
                 and 0 <= i < self.game.width
+                and (j, i) not in [to_visit_cood for to_visit_cood, parent_cood in to_visit]
                 and (j, i) not in visited
-                and (j, i) not in to_visit
             )
 
         def mark_to_visit(j, i):
             for adj_coord in [(j + 1, i), (j - 1, i), (j, i + 1), (j, i - 1)]:
                 if allow_visit(*adj_coord):
-                    to_visit[adj_coord] = (j, i)
+                    to_visit.append((adj_coord,(j, i)))
 
         # GENERATES WALLS FROM WALL_TYPES
         self.walls = np.ones((self.game.height, self.game.width))
@@ -385,10 +385,11 @@ class Board:
         )
         self.walls[begin_j, begin_i] = 0
         visited = {(begin_j, begin_i)}
-        to_visit = {}
+        to_visit = []
         mark_to_visit(begin_j, begin_i)
         while to_visit:
-            (visiting_cood, parent_cood) = to_visit.popitem()
+            (visiting_cood, parent_cood)=to_visit.pop() if len(to_visit)<3 else to_visit.pop(-np.random.randint(1,3))
+            
             visited.add(visiting_cood)
             visiting_j, visiting_i = visiting_cood
             detect_j, detect_i = np.array(visiting_cood) * 2 - np.array(parent_cood)
@@ -400,11 +401,8 @@ class Board:
                 self.walls[visiting_j, visiting_i] = 0
             mark_to_visit(visiting_j, visiting_i)
 
-        # print(self.walls)
-        # print(visited)
-        # print(to_visit)
         np.save("./gamedata/walls", self.walls)
-        # # self.walls = np.load("gamedata/walls.npy")
+        # self.walls = np.load("gamedata/walls.npy")
 
     def create_sprites(self):
         sprite_pixel = 48
@@ -476,7 +474,7 @@ class Board:
 
 
 def main():
-    game = Game(12, 22)
+    game = Game(18, 32)
 
 
 if __name__ == "__main__":
