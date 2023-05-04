@@ -72,7 +72,6 @@ class Entity:
         self.speed_j, self.speed_i = 0, 0
         self.orientation_j, self.orientation_i = 1, 0
         self.caracter_init()
-        self.delete_orientation = False
         self.create_sprites()
         self.update_sprites()
         self.move_control()
@@ -296,8 +295,6 @@ class Enemy(Person):
                     current = came_from[current]
                 if len(path) == 0:
                     self.game.root.title("Game Over")
-                    # When found player : delete orientation
-                    self.delete_orientation = True
                     self.speed_j, self.speed_i = 0, 0
                     return 0
                 next_node = path[-1]
