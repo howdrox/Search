@@ -156,11 +156,13 @@ class Entity:
         elif isinstance(self, Bullet):
             if square_touched == "wall":
                 self.destroy()
-                return "死了哈哈哈没了"
+                return "子弹撞墙没了"
             if isinstance(square_touched, Enemy):
-                square_touched.destroy()
+                square_touched.hp -= 1
+                if square_touched.hp <= 0:
+                    square_touched.destroy()
                 self.destroy()
-                return "die"
+                return "子弹打人没了"
 
         self.to_move_control = self.game.root.after(
             int(1000 / self.speed), self.move_control
@@ -188,6 +190,7 @@ class Entity:
 
 
 class Person(Entity):
+    hp = 10
     pass
 
 
