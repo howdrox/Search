@@ -172,6 +172,11 @@ class Entity:
                     square_touched.destroy()
                 self.destroy()
                 return "子弹打人没了"
+        elif isinstance(self, Enemy):
+            if isinstance(square_touched, Player):
+                square_touched.hp -= 1
+                if square_touched.hp <= 0:
+                    square_touched.destroy()
 
         self.to_move_control = self.game.root.after(
             int(1000 / self.speed), self.move_control
@@ -276,6 +281,10 @@ class Enemy(Person):
     def pathfinding(self):
         start_node = (self.j, self.i)
         players = list(self.game.entities["player"].values())
+
+        if len(players) == 0:
+            self.speed_j, self.speed_i = 0, 0
+            return 0
         end_node = (
             players[0].j,
             players[0].i,
@@ -387,7 +396,7 @@ class Board:
 
     def create_walls(self):
         # GENERATING RANDOM WALLS
-        np.random.seed(233)
+        # np.random.seed(233)
 
         def allow_visit(j, i):
             return (
