@@ -434,10 +434,10 @@ class Board:
 
     def create_sprites(self):
         sprite_pixel = 48
-        self.floor_spritesheet_path = "img/tilesets/Outside_A2.png"
+        self.floor_spritesheet_path = "img/tilesets/Outside_A5.png"
         self.floor_sprite = ImageTk.PhotoImage(
             Image.open(self.floor_spritesheet_path)
-            .crop(sprite_pixel * (np.array([0, 0] * 2) + (0, 0, 1, 1)))
+            .crop(sprite_pixel * (np.array([7, 2] * 2) + (0, 0, 1, 1)))
             .resize((self.game.square_size,) * 2)
         )
         self.wall_spritesheet_path = "img/tilesets/World_A2.png"
