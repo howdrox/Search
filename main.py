@@ -382,8 +382,6 @@ class Board:
 
     def __init__(self, game):
         self.game = game
-        self.maze_chaos = 1  # an integer >=1
-        self.wall_density = 1  # a float between 0 and 1
         self.create_walls()
         self.create_sprites()
 
