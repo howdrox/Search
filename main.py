@@ -365,21 +365,44 @@ class Board:
         # GENERATING RANDOM WALLS
         np.random.seed(10)
 
-        # GENERATES WALLS FROM WALL_TYPES
-        self.walls = np.zeros((self.game.height, self.game.width))
-        wall_types = list(np.load("./gamedata/wall_types.npy"))
-        for i in range(7):
-            # Gets the wall type
-            rnd = np.random.randint(len(wall_types))
-            wall = wall_types[rnd]
-            # Rotates it randomly
-            rot = np.random.randint(4)
-            np.rot90(wall, rot)
-            # Generates the position
-            i = np.random.randint(self.game.width - 2)
-            j = np.random.randint(self.game.height - 2)
-            self.walls[j : j + wall.shape[0], i : i + wall.shape[1]] = wall
+        def allow_visit(j, i):
+            return (
+                0 <= j < self.game.height
+                and 0 <= i < self.game.width
+                and (j, i) not in visited
+                and (j, i) not in to_visit
+            )
 
+        def mark_to_visit(j, i):
+            for adj_coord in [(j + 1, i), (j - 1, i), (j, i + 1), (j, i - 1)]:
+                if allow_visit(*adj_coord):
+                    to_visit[adj_coord] = (j, i)
+
+        # GENERATES WALLS FROM WALL_TYPES
+        self.walls = np.ones((self.game.height, self.game.width))
+        begin_j, begin_i = np.random.randint(0, self.game.height), np.random.randint(
+            0, self.game.width
+        )
+        self.walls[begin_j, begin_i] = 0
+        visited = {(begin_j, begin_i)}
+        to_visit = {}
+        mark_to_visit(begin_j, begin_i)
+        while to_visit:
+            (visiting_cood, parent_cood) = to_visit.popitem()
+            visited.add(visiting_cood)
+            visiting_j, visiting_i = visiting_cood
+            detect_j, detect_i = np.array(visiting_cood) * 2 - np.array(parent_cood)
+            if not (
+                0 <= detect_j < self.game.height and 0 <= detect_i < self.game.width
+            ):
+                self.walls[visiting_j, visiting_i] = 0
+            elif self.walls[detect_j, detect_i] == 1:
+                self.walls[visiting_j, visiting_i] = 0
+            mark_to_visit(visiting_j, visiting_i)
+
+        # print(self.walls)
+        # print(visited)
+        # print(to_visit)
         np.save("./gamedata/walls", self.walls)
         # # self.walls = np.load("gamedata/walls.npy")
 
@@ -453,7 +476,7 @@ class Board:
 
 
 def main():
-    game = Game(15, 20)
+    game = Game(12, 22)
 
 
 if __name__ == "__main__":
