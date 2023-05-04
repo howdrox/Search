@@ -253,7 +253,7 @@ class Enemy(Person):
     def caracter_init(self):
         self.capture_distance = 7
         self.speed = 5
-        self.angry_duration = 2 # seconds
+        self.angry_duration = 2  # seconds
         self.spritesheet_path = "./img/characters/Monster.png"
         self.sprite_pos_in_sheet_i = 0
         self.sprite_pos_in_sheet_j = 0
@@ -300,8 +300,11 @@ class Enemy(Person):
                     self.speed_j, self.speed_i = 0, 0
                     return 0
                 elif len(path) <= self.capture_distance:
-                    self.angry_start=time.time()
-                elif not hasattr(self,'angry_start') or time.time()-self.angry_start>self.angry_duration:
+                    self.angry_start = time.time()
+                elif (
+                    not hasattr(self, "angry_start")
+                    or time.time() - self.angry_start > self.angry_duration
+                ):
                     self.speed_j, self.speed_i = 0, 0
                     return 0
                 next_node = path[-1]
