@@ -9,7 +9,7 @@ class Game:
         self.t = time.time()
         self.width = width + (width % 2 == 0)
         self.height = height + (height % 2 == 0)  # nbr de case
-        self.square_size = 45  # pixel par case
+        self.square_size = 30  # pixel par case
         self.enemy_number = enemy_number
         self.create_window()
         self.timer_title()
@@ -17,6 +17,7 @@ class Game:
         self.board = Board(self)
         self.board.show_walls()
         self.create_entities()
+        self.create_menu()
         self.root.mainloop()
 
     def timer_title(self):
@@ -72,6 +73,15 @@ class Game:
             j_test = np.random.randint(0, self.height)
             if not self.check_square(j_test, i_test):
                 return j_test, i_test
+            
+    def create_menu(self):
+        self.mainmenu = tk.Menu(self.root)
+        self.mazemenu=tk.Menu(self.mainmenu,tearoff=0)
+        self.mazemenu.add_command(label='Renerate')
+        self.mazemenu.add_command(label='Save Maze')
+        self.mazemenu.add_command(label='Load Maze')
+        self.mainmenu.add_cascade(label='Maze',menu=self.mazemenu)
+        self.root.config(menu=self.mainmenu)
 
 
 class Entity:
