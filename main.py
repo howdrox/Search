@@ -359,6 +359,7 @@ class Board:
     def __init__(self, game):
         self.game = game
         self.maze_chaos = 2  # an integer >=1
+        self.wall_density = 0.7  # a float between 0 and 1
         self.create_walls()
         self.create_sprites()
 
@@ -404,6 +405,8 @@ class Board:
             ):
                 self.walls[visiting_j, visiting_i] = 0
             elif self.walls[detect_j, detect_i] == 1:
+                self.walls[visiting_j, visiting_i] = 0
+            elif np.random.random() > self.wall_density:
                 self.walls[visiting_j, visiting_i] = 0
             mark_to_visit(visiting_j, visiting_i)
 
