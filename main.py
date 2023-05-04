@@ -251,7 +251,9 @@ class Player(Person):
 
 class Enemy(Person):
     def caracter_init(self):
+        self.capture_distance = 7
         self.speed = 5
+        self.angry_duration = 2 # seconds
         self.spritesheet_path = "./img/characters/Monster.png"
         self.sprite_pos_in_sheet_i = 0
         self.sprite_pos_in_sheet_j = 0
@@ -297,6 +299,11 @@ class Enemy(Person):
                     self.game.root.title("Game Over")
                     self.speed_j, self.speed_i = 0, 0
                     return 0
+                elif len(path) <= self.capture_distance:
+                    self.angry_start=time.time()
+                elif not hasattr(self,'angry_start') or time.time()-self.angry_start>self.angry_duration:
+                    self.speed_j, self.speed_i = 0, 0
+                    return 0
                 next_node = path[-1]
                 self.speed_j = next_node[0] - start_node[0]
                 self.speed_i = next_node[1] - start_node[1]
@@ -323,6 +330,9 @@ class Enemy(Person):
                     )
                     frontier.put((f_score[neighbor], neighbor))
                     came_from[neighbor] = current
+
+        # If there is no path to the end_node
+        self.speed_j, self.speed_i = 0, 0
 
 
 class Portal(Entity):
@@ -358,14 +368,14 @@ class Board:
 
     def __init__(self, game):
         self.game = game
-        self.maze_chaos = 2  # an integer >=1
-        self.wall_density = 0.7  # a float between 0 and 1
+        self.maze_chaos = 1  # an integer >=1
+        self.wall_density = 1  # a float between 0 and 1
         self.create_walls()
         self.create_sprites()
 
     def create_walls(self):
         # GENERATING RANDOM WALLS
-        np.random.seed(10)
+        np.random.seed(2333)
 
         def allow_visit(j, i):
             return (
