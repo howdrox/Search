@@ -440,10 +440,10 @@ class Board:
             .crop(sprite_pixel * (np.array([7, 2] * 2) + (0, 0, 1, 1)))
             .resize((self.game.square_size,) * 2)
         )
-        self.wall_spritesheet_path = "img/tilesets/World_A2.png"
+        self.wall_spritesheet_path = "img/tilesets/Outside_B.png"
         self.wall_sprite = ImageTk.PhotoImage(
             Image.open(self.wall_spritesheet_path)
-            .crop(sprite_pixel * (np.array([14, 6] * 2) + (0, 0, 1, 1)))
+            .crop(sprite_pixel * (np.array([8, 4] * 2) + (0, 0, 1, 1)))
             .resize((self.game.square_size,) * 2)
         )
 
