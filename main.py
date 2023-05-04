@@ -5,12 +5,12 @@ from PIL import Image, ImageTk
 
 
 class Game:
-    def __init__(self, height, width):
+    def __init__(self, height, width, enemy_number):
         self.t = time.time()
         self.width = width
         self.height = height  # nbr de case
         self.square_size = 45  # pixel par case
-
+        self.enemy_number = enemy_number
         self.create_window()
         self.timer_title()
         self.create_canvas()
@@ -38,8 +38,18 @@ class Game:
         self.entities = {"player": {}, "enemy": {}, "portal": {}}
         self.entities["player"][1] = Player(self, self.get_random_empty_square(), 1)
         self.entities["player"][2] = Player(self, self.get_random_empty_square(), 2)
-        self.entities["enemy"][1] = Enemy(self, self.get_random_empty_square(), 1)
-        self.entities["enemy"][2] = Enemy(self, self.get_random_empty_square(), 2)
+        for i in range(1, self.enemy_number + 1):
+            while True:
+                cood = self.get_random_empty_square()
+                d1 = self.board.manhattan(
+                    cood, (self.entities["player"][1].j, self.entities["player"][1].i)
+                )
+                d2 = self.board.manhattan(
+                    cood, (self.entities["player"][2].j, self.entities["player"][2].i)
+                )
+                if d1 > Enemy.capture_distance and d2 > Enemy.capture_distance:
+                    break
+            self.entities["enemy"][i] = Enemy(self, cood, i)
         self.entities["portal"][1] = Portal(self, self.get_random_empty_square(), 1)
         self.entities["portal"][2] = Portal(self, self.get_random_empty_square(), 2)
 
@@ -250,10 +260,11 @@ class Player(Person):
 
 
 class Enemy(Person):
+    capture_distance = 7
+
     def caracter_init(self):
-        self.capture_distance = 7
         self.speed = 5
-        self.angry_duration = 2  # seconds
+        self.angry_duration = 1  # seconds
         self.spritesheet_path = "./img/characters/Monster.png"
         self.sprite_pos_in_sheet_i = 0
         self.sprite_pos_in_sheet_j = 0
@@ -371,14 +382,14 @@ class Board:
 
     def __init__(self, game):
         self.game = game
-        self.maze_chaos = 1  # an integer >=1
-        self.wall_density = 1  # a float between 0 and 1
+        self.maze_chaos = 2  # an integer >=1
+        self.wall_density = 0.7  # a float between 0 and 1
         self.create_walls()
         self.create_sprites()
 
     def create_walls(self):
         # GENERATING RANDOM WALLS
-        np.random.seed(2333)
+        np.random.seed(233)
 
         def allow_visit(j, i):
             return (
@@ -496,7 +507,7 @@ class Board:
 
 
 def main():
-    game = Game(18, 32)
+    game = Game(18, 32, enemy_number=4)
 
 
 if __name__ == "__main__":
