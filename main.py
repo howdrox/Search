@@ -157,7 +157,7 @@ class Entity:
             if square_touched == "wall":
                 self.destroy()
                 return "子弹撞墙没了"
-            if isinstance(square_touched, Enemy):
+            if isinstance(square_touched, Person):
                 square_touched.hp -= 1
                 if square_touched.hp <= 0:
                     square_touched.destroy()
@@ -242,8 +242,8 @@ class Player(Person):
             self.speed_i = 0
 
     def shoot(self, k):
-        bullet_j = self.j + self.speed_j
-        bullet_i = self.i + self.speed_i
+        bullet_j = self.j + self.orientation_j
+        bullet_i = self.i + self.orientation_i
         if not self.game.board.check_walls(bullet_j, bullet_i):
             bullet = Bullet(self.game, (bullet_j, bullet_i), self.id)
             bullet.speed_i = self.orientation_i
