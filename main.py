@@ -382,14 +382,14 @@ class Board:
 
     def __init__(self, game):
         self.game = game
-        self.maze_chaos = 2  # an integer >=1
-        self.wall_density = 0.7  # a float between 0 and 1
+        self.maze_chaos = 1  # an integer >=1
+        self.wall_density = 1  # a float between 0 and 1
         self.create_walls()
         self.create_sprites()
 
     def create_walls(self):
         # GENERATING RANDOM WALLS
-        np.random.seed(233)
+        # np.random.seed(233)
 
         def allow_visit(j, i):
             return (
@@ -401,7 +401,9 @@ class Board:
             )
 
         def mark_to_visit(j, i):
-            for adj_coord in [(j + 1, i), (j - 1, i), (j, i + 1), (j, i - 1)]:
+            adj_coords = [(j + 1, i), (j - 1, i), (j, i + 1), (j, i - 1)]
+            while adj_coords:
+                adj_coord=adj_coords.pop(np.random.randint(0, len(adj_coords)))
                 if allow_visit(*adj_coord):
                     to_visit.append((adj_coord, (j, i)))
 
