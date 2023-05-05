@@ -20,9 +20,12 @@ class Game:
         self.create_menu()
         self.root.mainloop()
 
-    def start_game(self):
+    def start_game(self, load: bool = False):
         self.t = time.time()
-        self.board = Board(self)
+        if load:
+            self.board.load_walls()
+        else:
+            self.board = Board(self)
         self.board.show_walls()
         self.create_entities()
 
@@ -32,14 +35,14 @@ class Game:
                 entity.destroy()
         self.c.delete("all")
 
-    def restart(self, regenerate: bool):
+    def restart(self, regenerate: bool = False, load: bool = False):
         self.clear()
         if regenerate:
             self.seed += 1
             np.random.seed(self.seed)
         else:
             np.random.seed(self.seed)
-        self.start_game()
+        self.start_game(load=load)
 
     def timer_title(self):
         self.root.title(f"Search - Time Played: {int(time.time() - self.t)}s")
@@ -99,9 +102,7 @@ class Game:
         self.mainmenu = tk.Menu(self.root)
 
         self.gamemenu = tk.Menu(self.mainmenu, tearoff=0)
-        self.gamemenu.add_command(
-            label="Restart", command=lambda: self.restart(regenerate=False)
-        )
+        self.gamemenu.add_command(label="Restart", command=self.restart)
         self.mainmenu.add_cascade(label="Game", menu=self.gamemenu)
 
         self.mazemenu = tk.Menu(self.mainmenu, tearoff=0)
@@ -109,7 +110,9 @@ class Game:
             label="Regenerate", command=lambda: self.restart(regenerate=True)
         )
         self.mazemenu.add_command(label="Save Maze", command=self.board.save_walls)
-        self.mazemenu.add_command(label="Load Maze")
+        self.mazemenu.add_command(
+            label="Load Maze", command=lambda: self.restart(load=True)
+        )
         self.mainmenu.add_cascade(label="Maze", menu=self.mazemenu)
 
         self.root.config(menu=self.mainmenu)
@@ -481,12 +484,19 @@ class Board:
             visited_island.add((detect_j, detect_i))
             mark_to_visit(detect_j, detect_i)
 
-        # self.walls = np.load("gamedata/walls.npy")
+    def load_walls(self):
+        path = tk.filedialog.askopenfilename(
+            initialfile="wall.npy",
+            initialdir=os.path.join(os.path.dirname(__file__), "walls"),
+            filetypes=[("Numpy array", "*.npy")],
+        )
+        self.walls = np.load(path)
 
     def save_walls(self):
         path = tk.filedialog.asksaveasfilename(
             initialfile="wall.npy",
             initialdir=os.path.join(os.path.dirname(__file__), "walls"),
+            filetypes=[("Numpy array", "*.npy")],
         )
         np.save(path, self.walls)
 
