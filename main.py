@@ -6,20 +6,33 @@ from PIL import Image, ImageTk
 
 class Game:
     def __init__(self, height, width, enemy_number):
-        self.t = time.time()
         self.width = width + (width % 2 == 0)
         self.height = height + (height % 2 == 0)  # nbr de case
         self.square_size = 30  # pixel par case
         self.enemy_number = enemy_number
         self.create_window()
         self.create_canvas()
+        self.create_menu()
+        self.start_game()
         self.timer_title()
+        self.root.mainloop()
+
+    def start_game(self):
+        self.t = time.time()
         self.board = Board(self)
         self.board.show_walls()
         self.create_entities()
-        self.create_menu()
-        self.root.mainloop()
 
+    def clear(self):
+        for entity_dict in self.entities.values():
+            for entity in list(entity_dict.values()):
+                entity.destroy()
+        self.c.delete("all")
+
+
+    def restart(self):
+        self.clear()
+        self.start_game()
     def timer_title(self):
         self.root.title(f"Search - Time Played: {int(time.time() - self.t)}s")
         self.root.after(1000, self.timer_title)
@@ -74,15 +87,6 @@ class Game:
             if not self.check_square(j_test, i_test):
                 return j_test, i_test
 
-    def restart(self):
-        for entity_dict in self.entities.values():
-            for entity in list(entity_dict.values()):
-                entity.destroy()
-        self.c.delete("all")
-        self.t = time.time()
-        self.board = Board(self)
-        self.board.show_walls()
-        self.create_entities()
 
     def create_menu(self):
         self.mainmenu = tk.Menu(self.root)
@@ -285,7 +289,7 @@ class Player(Person):
         bullet_i = self.i + self.orientation_i
         if not self.game.board.check_walls(bullet_j, bullet_i):
             while True:
-                bullet_id = np.random.randint(10000)
+                bullet_id = np.random.randint(1e9)
                 if bullet_id not in self.game.entities["bullet"]:
                     break
             bullet = Bullet(self.game, (bullet_j, bullet_i), bullet_id)
