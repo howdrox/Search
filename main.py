@@ -13,6 +13,8 @@ class Game:
         self.create_window()
         self.create_canvas()
         self.create_menu()
+        self.seed = 233
+        np.random.seed(self.seed)
         self.start_game()
         self.timer_title()
         self.root.mainloop()
@@ -29,10 +31,15 @@ class Game:
                 entity.destroy()
         self.c.delete("all")
 
-
-    def restart(self):
+    def restart(self, regenerate: bool):
         self.clear()
+        if regenerate:
+            self.seed += 1
+            np.random.seed(self.seed)
+        else:
+            np.random.seed(self.seed)
         self.start_game()
+
     def timer_title(self):
         self.root.title(f"Search - Time Played: {int(time.time() - self.t)}s")
         self.root.after(1000, self.timer_title)
@@ -87,18 +94,17 @@ class Game:
             if not self.check_square(j_test, i_test):
                 return j_test, i_test
 
-
     def create_menu(self):
         self.mainmenu = tk.Menu(self.root)
 
         self.mazemenu = tk.Menu(self.mainmenu, tearoff=0)
-        self.mazemenu.add_command(label="Renerate")
+        self.mazemenu.add_command(label="Regenerate", command=lambda: self.restart(regenerate=True))
         self.mazemenu.add_command(label="Save Maze")
         self.mazemenu.add_command(label="Load Maze")
         self.mainmenu.add_cascade(label="Maze", menu=self.mazemenu)
 
         self.gamemenu = tk.Menu(self.mainmenu, tearoff=0)
-        self.gamemenu.add_command(label="Restart", command=self.restart)
+        self.gamemenu.add_command(label="Restart", command=lambda: self.restart(regenerate=False))
         self.mainmenu.add_cascade(label="Game", menu=self.gamemenu)
 
         self.root.config(menu=self.mainmenu)
@@ -239,6 +245,7 @@ class Person(Entity):
 
 class Player(Person):
     speed = 15
+
     def caracter_init(self):
         if self.id == 1:
             self.spritesheet_path = "./img/characters/Actor3.png"
@@ -306,7 +313,6 @@ class Enemy(Person):
     spritesheet_path = "./img/characters/Monster.png"
     sprite_pos_in_sheet_i = 0
     sprite_pos_in_sheet_j = 0
-
 
     def move_control(self):
         self.pathfinding()
@@ -429,7 +435,6 @@ class Board:
 
     def create_walls(self):
         # GENERATING RANDOM WALLS
-        # np.random.seed(233)
 
         def allow_visit(j, i):
             return (
