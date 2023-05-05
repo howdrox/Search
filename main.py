@@ -1,6 +1,7 @@
 import tkinter as tk
+import tkinter.filedialog
 import numpy as np
-import time, queue
+import time, queue, os
 from PIL import Image, ImageTk
 
 
@@ -12,11 +13,11 @@ class Game:
         self.enemy_number = enemy_number
         self.create_window()
         self.create_canvas()
-        self.create_menu()
-        self.seed = 233
+        self.seed = int(time.time())
         np.random.seed(self.seed)
         self.start_game()
         self.timer_title()
+        self.create_menu()
         self.root.mainloop()
 
     def start_game(self):
@@ -107,7 +108,7 @@ class Game:
         self.mazemenu.add_command(
             label="Regenerate", command=lambda: self.restart(regenerate=True)
         )
-        self.mazemenu.add_command(label="Save Maze")
+        self.mazemenu.add_command(label="Save Maze", command=self.board.save_walls)
         self.mazemenu.add_command(label="Load Maze")
         self.mainmenu.add_cascade(label="Maze", menu=self.mazemenu)
 
@@ -480,8 +481,14 @@ class Board:
             visited_island.add((detect_j, detect_i))
             mark_to_visit(detect_j, detect_i)
 
-        np.save("./gamedata/current_walls", self.walls)
         # self.walls = np.load("gamedata/walls.npy")
+
+    def save_walls(self):
+        path = tk.filedialog.asksaveasfilename(
+            initialfile="wall.npy",
+            initialdir=os.path.join(os.path.dirname(__file__), "walls"),
+        )
+        np.save(path, self.walls)
 
     def create_sprites(self):
         sprite_pixel = 48
