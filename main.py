@@ -97,15 +97,19 @@ class Game:
     def create_menu(self):
         self.mainmenu = tk.Menu(self.root)
 
+        self.gamemenu = tk.Menu(self.mainmenu, tearoff=0)
+        self.gamemenu.add_command(
+            label="Restart", command=lambda: self.restart(regenerate=False)
+        )
+        self.mainmenu.add_cascade(label="Game", menu=self.gamemenu)
+
         self.mazemenu = tk.Menu(self.mainmenu, tearoff=0)
-        self.mazemenu.add_command(label="Regenerate", command=lambda: self.restart(regenerate=True))
+        self.mazemenu.add_command(
+            label="Regenerate", command=lambda: self.restart(regenerate=True)
+        )
         self.mazemenu.add_command(label="Save Maze")
         self.mazemenu.add_command(label="Load Maze")
         self.mainmenu.add_cascade(label="Maze", menu=self.mazemenu)
-
-        self.gamemenu = tk.Menu(self.mainmenu, tearoff=0)
-        self.gamemenu.add_command(label="Restart", command=lambda: self.restart(regenerate=False))
-        self.mainmenu.add_cascade(label="Game", menu=self.gamemenu)
 
         self.root.config(menu=self.mainmenu)
 
