@@ -76,11 +76,17 @@ class Game:
             
     def create_menu(self):
         self.mainmenu = tk.Menu(self.root)
+
         self.mazemenu=tk.Menu(self.mainmenu,tearoff=0)
         self.mazemenu.add_command(label='Renerate')
         self.mazemenu.add_command(label='Save Maze')
         self.mazemenu.add_command(label='Load Maze')
         self.mainmenu.add_cascade(label='Maze',menu=self.mazemenu)
+        
+        self.gamemenu=tk.Menu(self.mainmenu,tearoff=0)
+        self.gamemenu.add_command(label='Restart')
+        self.mainmenu.add_cascade(label='Game',menu=self.gamemenu)
+
         self.root.config(menu=self.mainmenu)
 
 
@@ -406,7 +412,7 @@ class Board:
 
     def create_walls(self):
         # GENERATING RANDOM WALLS
-        # np.random.seed(233)
+        np.random.seed(233)
 
         def allow_visit(j, i):
             return (
@@ -448,7 +454,7 @@ class Board:
             visited_island.add((detect_j, detect_i))
             mark_to_visit(detect_j, detect_i)
 
-        np.save("./gamedata/walls", self.walls)
+        np.save("./gamedata/current_walls", self.walls)
         # self.walls = np.load("gamedata/walls.npy")
 
     def create_sprites(self):
