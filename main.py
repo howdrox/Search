@@ -36,7 +36,7 @@ class Game:
         self.c.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
     def create_entities(self):
-        self.entities = {"player": {}, "enemy": {}, "portal": {},'bullet':{}}
+        self.entities = {"player": {}, "enemy": {}, "portal": {}, "bullet": {}}
         self.entities["player"][1] = Player(self, self.get_random_empty_square(), 1)
         self.entities["player"][2] = Player(self, self.get_random_empty_square(), 2)
         for i in range(1, self.enemy_number + 1):
@@ -73,19 +73,19 @@ class Game:
             j_test = np.random.randint(0, self.height)
             if not self.check_square(j_test, i_test):
                 return j_test, i_test
-            
+
     def create_menu(self):
         self.mainmenu = tk.Menu(self.root)
 
-        self.mazemenu=tk.Menu(self.mainmenu,tearoff=0)
-        self.mazemenu.add_command(label='Renerate')
-        self.mazemenu.add_command(label='Save Maze')
-        self.mazemenu.add_command(label='Load Maze')
-        self.mainmenu.add_cascade(label='Maze',menu=self.mazemenu)
-        
-        self.gamemenu=tk.Menu(self.mainmenu,tearoff=0)
-        self.gamemenu.add_command(label='Restart')
-        self.mainmenu.add_cascade(label='Game',menu=self.gamemenu)
+        self.mazemenu = tk.Menu(self.mainmenu, tearoff=0)
+        self.mazemenu.add_command(label="Renerate")
+        self.mazemenu.add_command(label="Save Maze")
+        self.mazemenu.add_command(label="Load Maze")
+        self.mainmenu.add_cascade(label="Maze", menu=self.mazemenu)
+
+        self.gamemenu = tk.Menu(self.mainmenu, tearoff=0)
+        self.gamemenu.add_command(label="Restart")
+        self.mainmenu.add_cascade(label="Game", menu=self.gamemenu)
 
         self.root.config(menu=self.mainmenu)
 
@@ -224,8 +224,8 @@ class Person(Entity):
 
 
 class Player(Person):
+    speed = 15
     def caracter_init(self):
-        self.speed = 15
         if self.id == 1:
             self.spritesheet_path = "./img/characters/Actor3.png"
             self.sprite_pos_in_sheet_i = 2
@@ -275,7 +275,7 @@ class Player(Person):
         bullet_i = self.i + self.orientation_i
         if not self.game.board.check_walls(bullet_j, bullet_i):
             while True:
-                bullet_id= np.random.randint(10000)
+                bullet_id = np.random.randint(10000)
                 if bullet_id not in self.game.entities["bullet"]:
                     break
             bullet = Bullet(self.game, (bullet_j, bullet_i), bullet_id)
@@ -287,13 +287,12 @@ class Player(Person):
 
 class Enemy(Person):
     capture_distance = 7
+    speed = 5
+    angry_duration = 1  # seconds
+    spritesheet_path = "./img/characters/Monster.png"
+    sprite_pos_in_sheet_i = 0
+    sprite_pos_in_sheet_j = 0
 
-    def caracter_init(self):
-        self.speed = 5
-        self.angry_duration = 1  # seconds
-        self.spritesheet_path = "./img/characters/Monster.png"
-        self.sprite_pos_in_sheet_i = 0
-        self.sprite_pos_in_sheet_j = 0
 
     def move_control(self):
         self.pathfinding()
@@ -380,11 +379,10 @@ class Enemy(Person):
 
 
 class Portal(Entity):
-    def caracter_init(self):
-        self.speed = 0.1
-        self.spritesheet_path = "./img/characters/!Door2.png"
-        self.sprite_pos_in_sheet_i = 0
-        self.sprite_pos_in_sheet_j = 0
+    speed = 0.1
+    spritesheet_path = "./img/characters/!Door2.png"
+    sprite_pos_in_sheet_i = 0
+    sprite_pos_in_sheet_j = 0
 
     def move_control(self):
         self.refresh()
@@ -395,11 +393,11 @@ class Portal(Entity):
 
 
 class Bullet(Entity):
-    def caracter_init(self):
-        self.speed = 20
-        self.spritesheet_path = "./img/characters/!Flame.png"
-        self.sprite_pos_in_sheet_i = 2
-        self.sprite_pos_in_sheet_j = 1
+    speed = 20
+    spritesheet_path = "./img/characters/!Flame.png"
+    sprite_pos_in_sheet_i = 2
+    sprite_pos_in_sheet_j = 1
+    shootby = None
 
 
 class Board:
