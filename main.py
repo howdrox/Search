@@ -181,7 +181,14 @@ class Entity:
             self.game.root.after_cancel(self.to_update_sprites)
         if hasattr(self, "to_move_control"):
             self.game.root.after_cancel(self.to_move_control)
-        del self.game.entities[self.__class__.__name__.lower()][self.id]
+        if not isinstance(self,Bullet):
+            del self.game.entities[self.__class__.__name__.lower()][self.id]
+        else:
+            try:
+                del self.game.entities[self.__class__.__name__.lower()][self.id]
+            except KeyError:
+                pass
+
 
     def get_portal(self, j_test, i_test):
         # returns the coords of the portal
@@ -201,12 +208,12 @@ class Entity:
 
         square_touched = self.game.check_square(j_test, i_test)
 
-        if not square_touched:
+        if not square_touched or isinstance(square_touched, Bullet):
             self.i = i_test
             self.j = j_test
             self.update_sprites(move_only=True)
         elif isinstance(self, Bullet):
-            if square_touched == "wall":
+            if square_touched == "wall" or isinstance(square_touched, Bullet):
                 self.destroy()
                 return "子弹撞墙没了"
             if isinstance(square_touched, Person):
@@ -303,12 +310,9 @@ class Player(Person):
         bullet_j = self.j + self.orientation_j
         bullet_i = self.i + self.orientation_i
         if not self.game.board.check_walls(bullet_j, bullet_i):
-            while True:
-                bullet_id = np.random.randint(1e9)
-                if bullet_id not in self.game.entities["bullet"]:
-                    break
+            bullet_id=(self.id, time.time())
             bullet = Bullet(self.game, (bullet_j, bullet_i), bullet_id)
-            self.game.entities["bullet"][bullet.id] = bullet
+            self.game.entities["bullet"][bullet_id] = bullet
             bullet.speed_i = self.orientation_i
             bullet.speed_j = self.orientation_j
             bullet.shootby = self.id
