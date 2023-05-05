@@ -12,8 +12,8 @@ class Game:
         self.square_size = 30  # pixel par case
         self.enemy_number = enemy_number
         self.create_window()
-        self.timer_title()
         self.create_canvas()
+        self.timer_title()
         self.board = Board(self)
         self.board.show_walls()
         self.create_entities()
@@ -36,7 +36,7 @@ class Game:
         self.c.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
     def create_entities(self):
-        self.entities = {"player": {}, "enemy": {}, "portal": {}}
+        self.entities = {"player": {}, "enemy": {}, "portal": {},'bullet':{}}
         self.entities["player"][1] = Player(self, self.get_random_empty_square(), 1)
         self.entities["player"][2] = Player(self, self.get_random_empty_square(), 2)
         for i in range(1, self.enemy_number + 1):
@@ -153,8 +153,7 @@ class Entity:
             self.game.root.after_cancel(self.to_update_sprites)
         if hasattr(self, "to_move_control"):
             self.game.root.after_cancel(self.to_move_control)
-        if isinstance(self, Person):
-            del self.game.entities[self.__class__.__name__.lower()][self.id]
+        del self.game.entities[self.__class__.__name__.lower()][self.id]
 
     def get_portal(self, j_test, i_test):
         # returns the coords of the portal
@@ -275,9 +274,15 @@ class Player(Person):
         bullet_j = self.j + self.orientation_j
         bullet_i = self.i + self.orientation_i
         if not self.game.board.check_walls(bullet_j, bullet_i):
-            bullet = Bullet(self.game, (bullet_j, bullet_i), self.id)
+            while True:
+                bullet_id= np.random.randint(10000)
+                if bullet_id not in self.game.entities["bullet"]:
+                    break
+            bullet = Bullet(self.game, (bullet_j, bullet_i), bullet_id)
+            self.game.entities["bullet"][bullet.id] = bullet
             bullet.speed_i = self.orientation_i
             bullet.speed_j = self.orientation_j
+            bullet.shootby = self.id
 
 
 class Enemy(Person):
