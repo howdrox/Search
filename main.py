@@ -74,6 +74,16 @@ class Game:
             if not self.check_square(j_test, i_test):
                 return j_test, i_test
 
+    def restart(self):
+        for entity_dict in self.entities.values():
+            for entity in list(entity_dict.values()):
+                entity.destroy()
+        self.c.delete("all")
+        self.t = time.time()
+        self.board = Board(self)
+        self.board.show_walls()
+        self.create_entities()
+
     def create_menu(self):
         self.mainmenu = tk.Menu(self.root)
 
@@ -84,7 +94,7 @@ class Game:
         self.mainmenu.add_cascade(label="Maze", menu=self.mazemenu)
 
         self.gamemenu = tk.Menu(self.mainmenu, tearoff=0)
-        self.gamemenu.add_command(label="Restart")
+        self.gamemenu.add_command(label="Restart", command=self.restart)
         self.mainmenu.add_cascade(label="Game", menu=self.gamemenu)
 
         self.root.config(menu=self.mainmenu)
@@ -415,7 +425,7 @@ class Board:
 
     def create_walls(self):
         # GENERATING RANDOM WALLS
-        np.random.seed(233)
+        # np.random.seed(233)
 
         def allow_visit(j, i):
             return (
