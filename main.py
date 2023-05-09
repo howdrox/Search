@@ -6,6 +6,17 @@ from PIL import Image, ImageTk
 
 
 class Game:
+    """
+    The main class of the game
+
+    Initialize the the window, the canvas, the board and the entities. Contains the main loop of the game.
+
+    Parameters:
+        height: height of the maze (in square)
+        width: width of the maze (in square)
+        enemy_number: number of enemy in the maze
+    """
+
     def __init__(self, height, width, enemy_number):
         self.width = width + (width % 2 == 0)
         self.height = height + (height % 2 == 0)  # nbr de case
@@ -21,6 +32,7 @@ class Game:
         self.root.mainloop()
 
     def start_game(self, load: bool = False):
+        """Loads the maze and creates the entities"""
         self.t = time.time()
         if load:
             self.board.load_walls()
@@ -30,12 +42,14 @@ class Game:
         self.create_entities()
 
     def clear(self):
+        """Clear the canvas and destroy all entities"""
         for entity_dict in self.entities.values():
             for entity in list(entity_dict.values()):
                 entity.destroy()
         self.c.delete("all")
 
     def restart(self, regenerate: bool = False, load: bool = False):
+        """Restart the game and changes the seed if specified"""
         self.clear()
         if regenerate:
             self.seed += 1
@@ -45,10 +59,12 @@ class Game:
         self.start_game(load=load)
 
     def timer_title(self):
+        """Timer to update the window title to include the time played"""
         self.root.title(f"Search - Time Played: {int(time.time() - self.t)}s")
         self.root.after(1000, self.timer_title)
 
     def create_window(self):
+        """Initializes the window"""
         self.c_width = self.width * self.square_size
         self.c_height = self.height * self.square_size  # canvas size (in pixel)
         self.root = tk.Tk()
@@ -56,10 +72,12 @@ class Game:
         self.root.title("Search")
 
     def create_canvas(self):
+        """Initializes the canvas"""
         self.c = tk.Canvas(self.root, width=self.c_width, height=self.c_height)
         self.c.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
 
     def create_entities(self):
+        """Initializes the entities. Both players, the enemies and the portals"""
         self.entities = {"player": {}, "enemy": {}, "portal": {}, "bullet": {}}
         self.entities["player"][1] = Player(self, self.get_random_empty_square(), 1)
         self.entities["player"][2] = Player(self, self.get_random_empty_square(), 2)
@@ -79,6 +97,7 @@ class Game:
         self.entities["portal"][2] = Portal(self, self.get_random_empty_square(), 2)
 
     def check_entities(self, j_test, i_test):
+        """Checks if there is an entity at the given coordinates. Returns the entity if there is one, False otherwise"""
         for entity_dict in self.entities.values():
             for entity in entity_dict.values():
                 if entity.j == j_test and entity.i == i_test:
@@ -86,12 +105,17 @@ class Game:
         return False
 
     def check_square(self, j_test, i_test):
+        """
+        Checks if there is a wall or an entity at the given coordinates.
+        Returns the entity if there is one, 'wall' if there is a wall, False otherwise
+        """
         if self.board.check_walls(j_test, i_test):
             return "wall"
         else:
             return self.check_entities(j_test, i_test)
 
     def get_random_empty_square(self):
+        """Returns random coordinates of an empty square"""
         while True:
             i_test = np.random.randint(0, self.width)
             j_test = np.random.randint(0, self.height)
@@ -99,6 +123,7 @@ class Game:
                 return j_test, i_test
 
     def create_menu(self):
+        """Initializes the menu"""
         self.mainmenu = tk.Menu(self.root)
 
         self.gamemenu = tk.Menu(self.mainmenu, tearoff=0)
@@ -119,7 +144,22 @@ class Game:
 
 
 class Entity:
+    """
+    Entity class. Parent of all entities i.e. players, enemies, portals and bullets.
+
+    For all entities, `i` and `j` represent the coordinates of the entity on the board.
+    With the origin at the top left corner, `i` is the vertical coordinate and `j` the horizontal one.
+
+    Parameters:
+        game: Game object
+        spawn_coord: Coordinates of the spawn
+        id: Id of the entity
+    """
+
     def __init__(self, game, spawn_coord, id):
+        """
+        Initializes variable common to all entities.
+        """
         self.game = game
         self.j, self.i = spawn_coord
         self.id = id
@@ -131,14 +171,21 @@ class Entity:
         self.move_control()
 
     def caracter_init(self):
+        """
+        Placeholder for the caracter initialization. To be implemented in the children classes.
+        Manages the varying sprites of an entity, used for the `Player` class.
+        """
         pass
 
     def create_sprites(self):
+        """
+        Creates a list of sprites for each orientation of the entity.
+        """
         self.num_ani_frames = 3
-        sprite_pixel = 48
+        sprite_pixel = 48  # size of a sprite in the spritesheet
         self.spritesheet = Image.open(self.spritesheet_path)
-        self.sprites = [  # 0:down, 1:left, 2:right, 3:up
-            # *(sprite_pixel * np.array([i, j, i + 1, j + 1]))
+        # 0:down, 1:left, 2:right, 3:up
+        self.sprites = [
             [
                 ImageTk.PhotoImage(
                     self.spritesheet.crop(
@@ -163,6 +210,9 @@ class Entity:
         self.sprite_index = 0
 
     def update_sprites(self, move_only=False):
+        """
+        Changes the sprite of the entity to animate it and move it. Takes into account the orientation and the speed of the entity.
+        """
         square_size = self.game.square_size
         if hasattr(self, "shape"):
             self.game.c.delete(self.shape)
@@ -176,6 +226,9 @@ class Entity:
             self.to_update_sprites = self.game.root.after(300, self.update_sprites)
 
     def destroy(self):
+        """
+        Destroys the entity. Mainly used for the `Bullet` class once it hits a wall or a `Person`.
+        """
         self.game.c.delete(self.shape)
         if hasattr(self, "to_update_sprites"):
             self.game.root.after_cancel(self.to_update_sprites)
@@ -190,7 +243,7 @@ class Entity:
                 pass
 
     def get_portal(self, j_test, i_test):
-        # returns the coords of the portal
+        """Returns the coords of the other portal"""
         portal1, portal2 = self.game.entities["portal"].values()
         if (j_test, i_test) == (portal1.j, portal1.i):
             return portal2.j, portal2.i
@@ -198,6 +251,11 @@ class Entity:
             return portal1.j, portal1.i
 
     def move(self):
+        """
+        Changes the entities coordinates. Takes into account the speed of the entity and the collisions with the walls.
+
+        Calls the function `move_control` as part of a timer.
+        """
         i_test, j_test = self.i + self.speed_i, self.j + self.speed_j
         # if the player is in a portal
         if isinstance(self.game.check_square(j_test, i_test), Portal):
@@ -214,13 +272,13 @@ class Entity:
         elif isinstance(self, Bullet):
             if square_touched == "wall" or isinstance(square_touched, Bullet):
                 self.destroy()
-                return "子弹撞墙没了"
+                return "子弹撞墙没了"  # bullet hits a wall and disappears
             if isinstance(square_touched, Person):
                 square_touched.hp -= 1
                 if square_touched.hp <= 0:
                     square_touched.destroy()
                 self.destroy()
-                return "子弹打人没了"
+                return "子弹打人没了"  # bullet hits a person and disappears
         elif isinstance(self, Enemy):
             if isinstance(square_touched, Player):
                 square_touched.hp -= 1
@@ -232,9 +290,16 @@ class Entity:
         )
 
     def move_control(self):
+        """
+        Controls what functions are called after the movement timer is over.
+        """
         self.move()
 
     def update_sprite_dir(self):
+        """
+        Updates the sprite direction to use a different sprite depending on the orientation of the entity.
+        0: down, 1: left, 2: right, 3: up
+        """
         if (self.orientation_i, self.orientation_j) == (0, 1):
             self.sprite_dir = 0
         elif (self.orientation_i, self.orientation_j) == (-1, 0):
@@ -253,13 +318,25 @@ class Entity:
 
 
 class Person(Entity):
+    """
+    Parent class for the `Player` and `Enemy` classes. Inherits from `Entity`.
+    """
+
     hp = 10
 
 
 class Player(Person):
+    """
+    Class for the player. Inherits from `Person`.
+    """
+
     speed = 15
 
     def caracter_init(self):
+        """
+        Specifies the player's sprite image and binds the keys to the player's movement.
+        AZERTY keyboard compatible only (for the teacher marking this code).
+        """
         if self.id == 1:
             self.spritesheet_path = "./img/characters/Actor3.png"
             self.sprite_pos_in_sheet_i = 2
@@ -283,6 +360,9 @@ class Player(Person):
         self.game.root.bind(f"<KeyPress-{attack_key}>", lambda e: self.shoot(e.keysym))
 
     def key_speed_set(self, k):
+        """
+        Updates the speed of the player if a key is pressed.
+        """
         if k in ("Up", "z", "Z"):
             self.speed_i = 0
             self.speed_j = -1
@@ -299,12 +379,18 @@ class Player(Person):
         self.update_sprite_dir()
 
     def key_speed_cancel(self, k):
+        """
+        Cancels the speed of the player if a key is released.
+        """
         if k in ("Up", "z", "Z", "Down", "s", "S"):
             self.speed_j = 0
         elif k in ("Left", "q", "Q", "Right", "d", "D"):
             self.speed_i = 0
 
     def shoot(self, k):
+        """
+        Creates a bullet if the player presses the attack key.
+        """
         bullet_j = self.j + self.orientation_j
         bullet_i = self.i + self.orientation_i
         if not self.game.board.check_walls(bullet_j, bullet_i):
@@ -317,6 +403,10 @@ class Player(Person):
 
 
 class Enemy(Person):
+    """
+    Class for the enemies. Inherits from `Person`.
+    """
+
     capture_distance = 10
     speed = 5
     angry_duration = 1  # seconds
@@ -325,10 +415,17 @@ class Enemy(Person):
     sprite_pos_in_sheet_j = 0
 
     def move_control(self):
+        """
+        Controls what functions are called after the movement timer is over.
+        """
         self.pathfinding()
         self.move()
 
     def pathfinding(self):
+        """
+        Finds the shortest path to the player and moves the enemy accordingly.
+        Uses the A* algorithm.
+        """
         start_node = (self.j, self.i)
         players = list(self.game.entities["player"].values())
 
@@ -409,20 +506,34 @@ class Enemy(Person):
 
 
 class Portal(Entity):
+    """
+    Class for the portals. Inherits from `Entity`.
+    """
+
     speed = 0.1
     spritesheet_path = "./img/characters/!Door2.png"
     sprite_pos_in_sheet_i = 0
     sprite_pos_in_sheet_j = 0
 
     def move_control(self):
+        """
+        Controls what functions are called after the movement timer is over.
+        """
         self.refresh()
         self.move()
 
     def refresh(self):
+        """
+        Refreshes the portal's position.
+        """
         self.j, self.i = self.game.get_random_empty_square()
 
 
 class Bullet(Entity):
+    """
+    Class for the bullets. Inherits from `Entity`.
+    """
+
     speed = 20
     spritesheet_path = "./img/characters/!Flame.png"
     sprite_pos_in_sheet_i = 2
@@ -432,10 +543,10 @@ class Bullet(Entity):
 
 class Board:
     """
-    les attributs de cette classe sont :
-        self.game
-        self.walls
-        self.wall_rectangles
+    Class for the board. Contains the board's data and methods.
+
+    Parameters:
+        game (Game): Game object.
     """
 
     def __init__(self, game):
@@ -444,9 +555,14 @@ class Board:
         self.create_sprites()
 
     def create_walls(self):
-        # GENERATING RANDOM WALLS
+        """
+        Creates a labyrinth of walls.
+        """
 
         def allow_visit(j, i):
+            """
+            Checks if a square can be visited.
+            """
             return (
                 j not in [0, self.game.height - 1]
                 and i not in [0, self.game.width - 1]
@@ -456,6 +572,9 @@ class Board:
             )
 
         def mark_to_visit(j, i):
+            """
+            Marks a square to be visited.
+            """
             for adj_coord in [(j + 1, i), (j - 1, i), (j, i + 1), (j, i - 1)]:
                 if allow_visit(*adj_coord):
                     to_visit.append((adj_coord, (j, i)))
@@ -487,6 +606,9 @@ class Board:
             mark_to_visit(detect_j, detect_i)
 
     def load_walls(self):
+        """
+        Loads the walls from a file.
+        """
         path = tk.filedialog.askopenfilename(
             initialfile="wall.npy",
             initialdir=os.path.join(os.path.dirname(__file__), "walls"),
@@ -495,6 +617,9 @@ class Board:
         self.walls = np.load(path)
 
     def save_walls(self):
+        """
+        Saves the walls to a file.
+        """
         path = tk.filedialog.asksaveasfilename(
             initialfile="wall.npy",
             initialdir=os.path.join(os.path.dirname(__file__), "walls"),
@@ -503,6 +628,9 @@ class Board:
         np.save(path, self.walls)
 
     def create_sprites(self):
+        """
+        Creates the sprites for the walls and the floor.
+        """
         sprite_pixel = 48
         self.floor_spritesheet_path = "img/tilesets/Outside_A5.png"
         self.floor_sprite = ImageTk.PhotoImage(
@@ -518,6 +646,9 @@ class Board:
         )
 
     def show_walls(self):
+        """
+        Shows the walls on the canvas.
+        """
         square_size = self.game.square_size
         floor_shapes = np.array(
             [
@@ -548,6 +679,9 @@ class Board:
         )
 
     def get_adj_coords(self, j, i):
+        """
+        Returns the adjacent coordinates of a square on the board.
+        """
         res = []
         for coords_adj in [(j + 1, i), (j - 1, i), (j, i + 1), (j, i - 1)]:
             case_adj = self.game.check_square(*coords_adj)
@@ -560,10 +694,13 @@ class Board:
         return res
 
     def manhattan(self, node1, node2):
-        """manhattan distance"""
+        """Returns the manhattan distance between two nodes."""
         return abs(node1[0] - node2[0]) + abs(node1[1] - node2[1])
 
     def check_walls(self, j_test, i_test):
+        """
+        Returns True if the square is a wall or out of bounds.
+        """
         return (
             not 0 <= j_test < self.game.height
             or not 0 <= i_test < self.game.width

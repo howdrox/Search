@@ -4,7 +4,7 @@
 
 Pour lancer le jeu, il suffit de lancer le fichier `main.py`.
 
-Utiliser un clavier qwerty pour jouer.
+Utiliser un clavier AZERTY pour jouer.
 
 Le joueur 1 utilise les touches `zqsd` pour bouger et `a` pour tirer.
 
