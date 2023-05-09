@@ -254,7 +254,6 @@ class Entity:
 
 class Person(Entity):
     hp = 10
-    pass
 
 
 class Player(Person):
@@ -271,7 +270,7 @@ class Player(Person):
             self.sprite_pos_in_sheet_j = 0
 
         move_keys = (
-            ["w", "s", "a", "d"] if self.id == 1 else ["Up", "Down", "Left", "Right"]
+            ["z", "s", "q", "d"] if self.id == 1 else ["Up", "Down", "Left", "Right"]
         )
         for key in move_keys:
             self.game.root.bind(
@@ -280,14 +279,14 @@ class Player(Person):
             self.game.root.bind(
                 f"<KeyRelease-{key}>", lambda e: self.key_speed_cancel(e.keysym)
             )
-        attack_key = "q" if self.id == 1 else "/"
+        attack_key = "a" if self.id == 1 else "!"
         self.game.root.bind(f"<KeyPress-{attack_key}>", lambda e: self.shoot(e.keysym))
 
     def key_speed_set(self, k):
-        if k in ("Up", "w", "W"):
+        if k in ("Up", "z", "Z"):
             self.speed_i = 0
             self.speed_j = -1
-        elif k in ("Left", "a", "A"):
+        elif k in ("Left", "q", "Q"):
             self.speed_i = -1
             self.speed_j = 0
         elif k in ("Down", "s", "S"):
@@ -300,9 +299,9 @@ class Player(Person):
         self.update_sprite_dir()
 
     def key_speed_cancel(self, k):
-        if k in ("Up", "w", "W", "Down", "s", "S"):
+        if k in ("Up", "z", "Z", "Down", "s", "S"):
             self.speed_j = 0
-        elif k in ("Left", "a", "A", "Right", "d", "D"):
+        elif k in ("Left", "q", "Q", "Right", "d", "D"):
             self.speed_i = 0
 
     def shoot(self, k):

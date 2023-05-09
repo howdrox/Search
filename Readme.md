@@ -1,8 +1,31 @@
+# Search - A game of shortest path
+
+## Pour lancer le jeu et jouer
+
+Pour lancer le jeu, il suffit de lancer le fichier `main.py`.
+
+Utiliser un clavier qwerty pour jouer.
+
+Le joueur 1 utilise les touches `zqsd` pour bouger et `a` pour tirer.
+
+Le joueur 2 utilies les flèches pour bouger et `!` pour tirer.
+
+## Description du jeu
+
+Les joueurs 1 et 2 peuvent se promener dans un labirynthe et tirer des projectiles. Deux enemies aveugles sont egalement génerer, ils utilisent les ondes ultrasonnores pour detecter les joueurs et les poursuivre (ces ondes sont fortement atténués donc ont une portée limitée). Le but du jeu est de survivre le plus longtemps possible. Des portails apparaisent aleatoirement sur la carte mais méfie toi, ils peuvent t'aider a échapper où te bloquer dans un coin.
+
+## Dépendences
+
+- tkinter
+- numpy
+- PIL
+- time
+- queue
+- os
 
 
 
-
-## Fonctions principales
+<!-- ## Fonctions principales
 
 - **Game(height, width)** : Crée une instance du jeu avec une grille de taille `height` x `width`. C'est la fonction qui initialise le jeu. Dedans, `create_window()` sert à construire la fenêtre de l'interface graphique, `create_canvas()` à initialiser le canvas, `board.show_walls()` à mettre en place la grille de jeu, `create_entities()` à creer les personnages et finallement `self.root.mainloop()` à demarer la boucle pricipale de l'interface graphique.
 
@@ -26,4 +49,4 @@
   - **\_\_init\_\_(self, game)** : Constructeur de la classe `Board`. Prend en paramètre l'instance de la classe `Game`.
   - **create_walls(self)** : Crée une grille de jeu a partir d'un tableau numpy de dimensions (height, width) qui contient des 0 pour les espaces vides et des 1 pour les murs. 
   - **show_walls(self)** : Affiche les murs sur le canvas. Parcourt le tableau numpy contenant les informations sur la grille de jeu et dessine un rectangle de couleur si la case contient un mur.
-  - **check_movement(self, j, i)** : Vérifie si le mouvement demandé est possible en vérifiant si la case où le personnage veut se deplacer n'est pas un mur et ne sort pas de la carte. Prend en paramètre les coordonnées de la case en question. Renvoie `True` si le mouvement est autorisé et `False` sinon.
+  - **check_movement(self, j, i)** : Vérifie si le mouvement demandé est possible en vérifiant si la case où le personnage veut se deplacer n'est pas un mur et ne sort pas de la carte. Prend en paramètre les coordonnées de la case en question. Renvoie `True` si le mouvement est autorisé et `False` sinon. -->
