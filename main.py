@@ -181,14 +181,13 @@ class Entity:
             self.game.root.after_cancel(self.to_update_sprites)
         if hasattr(self, "to_move_control"):
             self.game.root.after_cancel(self.to_move_control)
-        if not isinstance(self,Bullet):
+        if not isinstance(self, Bullet):
             del self.game.entities[self.__class__.__name__.lower()][self.id]
         else:
             try:
                 del self.game.entities[self.__class__.__name__.lower()][self.id]
             except KeyError:
                 pass
-
 
     def get_portal(self, j_test, i_test):
         # returns the coords of the portal
@@ -310,7 +309,7 @@ class Player(Person):
         bullet_j = self.j + self.orientation_j
         bullet_i = self.i + self.orientation_i
         if not self.game.board.check_walls(bullet_j, bullet_i):
-            bullet_id=(self.id, time.time())
+            bullet_id = (self.id, time.time())
             bullet = Bullet(self.game, (bullet_j, bullet_i), bullet_id)
             self.game.entities["bullet"][bullet_id] = bullet
             bullet.speed_i = self.orientation_i
@@ -319,7 +318,7 @@ class Player(Person):
 
 
 class Enemy(Person):
-    capture_distance = 7
+    capture_distance = 10
     speed = 5
     angry_duration = 1  # seconds
     spritesheet_path = "./img/characters/Monster.png"

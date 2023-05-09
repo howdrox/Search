@@ -1,3 +1,7 @@
+
+
+
+
 ## Fonctions principales
 
 - **Game(height, width)** : Crée une instance du jeu avec une grille de taille `height` x `width`. C'est la fonction qui initialise le jeu. Dedans, `create_window()` sert à construire la fenêtre de l'interface graphique, `create_canvas()` à initialiser le canvas, `board.show_walls()` à mettre en place la grille de jeu, `create_entities()` à creer les personnages et finallement `self.root.mainloop()` à demarer la boucle pricipale de l'interface graphique.
