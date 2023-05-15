@@ -46,9 +46,15 @@ Cette fonction est définie dans le classe Board permettant de générer aléato
               visited_island.add((detect_j, detect_i))
             mark_to_visit(detect_j, detect_i)`
 ***
-Dans la fonction, on définit aussi la fonction allow_visit et mark_to_visit :
+Dans la fonction, on définit aussi la fonction `allow_visit` et `mark_to_visit` :
 - `allow_visit` :   
 Cette fonction est utilisée pour vérifier si une coordonnée `(j, i)` peut être accessible. Plus précisément, elle vérifie si la coordonnée se trouve sur le bord de la carte, si elle est déjà dans la liste `to_visit` et si elle a déjà été visitée auparavant. Si la coordonnée peut être visitée, la fonction renvoie `True`, sinon elle renvoie False. Dans le processus de génération de la carte, cette fonction est utilisée pour déterminer s'il faut ajouter la coordonnée à la liste `to_visit`.
 - `mark_to_visit` :  
 Cette fonction ajoute les positions accessibles environnantes à la liste to_visit et enregistre la position actuelle `(j, i)` comme leur nœud parent. Cette fonction fait partie de l'algorithme de recherche utilisé pour générer les murs.  
-Plus précisément, pour la position actuelle `(j, i)`, le code parcourt les quatre positions adjacentes dans les directions haut, bas, gauche et droite, et utilise la fonction `allow_visit(*adj_coord)` pour déterminer si la position peut être accédée. Si c'est le cas, le tuple `(adj_coord, (j, i))` composé de la position `(adj_coord)` et de la position actuelle `(j, i)` est ajouté à to_visit. Ici, `(j, i)` est enregistré comme le nœud parent de `(adj_coord)`, ce qui peut être utilisé plus tard pour reconstruire le chemin.
+Plus précisément, pour la position actuelle `(j, i)`, le code parcourt les quatre positions adjacentes dans les directions haut, bas, gauche et droite, et utilise la fonction `allow_visit(*adj_coord)` pour déterminer si la position peut être accédée. Si c'est le cas, le tuple `(adj_coord, (j, i))` composé de la position `(adj_coord)` et de la position actuelle `(j, i)` est ajouté à to_visit. Ici, `(j, i)` est enregistré comme le nœud parent de `(adj_coord)`, ce qui peut être utilisé plus tard pour reconstruire le chemin.  
+
+# Algorithme principal :  
+    X, Y = np.meshgrid(np.arange(self.game.width), np.arange(self.game.height))
+    self.walls = (X % 2 == 0) | (Y % 2 == 0)
+
+
