@@ -2,7 +2,7 @@
 
 Cette fonction est définie dans le classe Board permettant de générer aléatoirement des murs, elle est basée sur l’algorithme de Prim.  
 
-`def create_walls(self):
+     `def create_walls(self):
         # GENERATING RANDOM WALLS
 
         def allow_visit(j, i):
