@@ -53,8 +53,11 @@ Cette fonction est utilisée pour vérifier si une coordonnée `(j, i)` peut êt
 Cette fonction ajoute les positions accessibles environnantes à la liste to_visit et enregistre la position actuelle `(j, i)` comme leur nœud parent. Cette fonction fait partie de l'algorithme de recherche utilisé pour générer les murs.  
 Plus précisément, pour la position actuelle `(j, i)`, le code parcourt les quatre positions adjacentes dans les directions haut, bas, gauche et droite, et utilise la fonction `allow_visit(*adj_coord)` pour déterminer si la position peut être accédée. Si c'est le cas, le tuple `(adj_coord, (j, i))` composé de la position `(adj_coord)` et de la position actuelle `(j, i)` est ajouté à to_visit. Ici, `(j, i)` est enregistré comme le nœud parent de `(adj_coord)`, ce qui peut être utilisé plus tard pour reconstruire le chemin.  
 
-# Algorithme principal :  
+### Algorithme principal :  
     X, Y = np.meshgrid(np.arange(self.game.width), np.arange(self.game.height))
     self.walls = (X % 2 == 0) | (Y % 2 == 0)
+Ce code utilise la fonction meshgrid de la bibliothèque `Numpy` pour créer deux tableaux bidimensionnels `X` et `Y`, qui représentent les valeurs de coordonnées dans les directions horizontale et verticale, respectivement. Les formes de `X` et `Y` sont toutes deux `(h, w)`, c'est-à-dire h lignes et w colonnes. Ici, h et w représentent respectivement la hauteur et la largeur du labyrinthe.
+
+
 
 
