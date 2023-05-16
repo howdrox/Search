@@ -2,7 +2,9 @@
 
 ## Pour lancer le jeu et jouer
 
-Pour lancer le jeu, il suffit de lancer le fichier `main.py`.
+Pour lancer le jeu, il suffit de lancer le fichier `main.py` dans le dossier `src`.
+  
+  ```python main.py```
 
 Utiliser un clavier AZERTY pour jouer.
 
