@@ -110,9 +110,8 @@ Ce code réalise les étapes répétitives pour que toutes les positions sur la 
 - Ajouter à la liste des positions à visiter toutes les positions voisines non visitées de la position actuelle, et marquer leur noeud parent comme la coordonnée de la position actuelle (fonction `mark_to_visit`).  
 *A noter que* quel que soit la position de `visiting_cood` par rapport au `parent_cood`, ces trois positions traitées dans une opération vérifient (réalisé par `detect_j, detect_i = np.array(visiting_cood) * 2 - np.array(parent_cood))` :   
 
-|    :----:   |    :----:     |    :----:  |
-| parent_cood | visiting_cood | detect_j,i |   
-|    :----:   |    :----:     |    :----:  |   
+| `parent_cood` | `visiting_cood` | `detect_j,i` |   
+|     :----:    |      :----:     |    :----:    |   
 
 ***
 
