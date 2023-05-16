@@ -57,7 +57,7 @@ Plus précisément, pour la position actuelle `(j, i)`, le code parcourt les qua
     X, Y = np.meshgrid(np.arange(self.game.width), np.arange(self.game.height))
     self.walls = (X % 2 == 0) | (Y % 2 == 0)
 Ce code utilise la fonction meshgrid de la bibliothèque `Numpy` pour créer deux tableaux bidimensionnels `X` et `Y`, qui représentent les valeurs de coordonnées dans les directions horizontale et verticale, respectivement. Les formes de `X` et `Y` sont toutes deux `(h, w)`, c'est-à-dire h lignes et w colonnes. Ici, h et w représentent respectivement la hauteur et la largeur du labyrinthe.
-![Example de la structure de X et Y](/Search/img/image001.png))
+![Example de la structure de X et Y](img/image001.png))
 
 
 
