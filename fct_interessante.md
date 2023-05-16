@@ -57,11 +57,28 @@ Plus précisément, pour la position actuelle `(j, i)`, le code parcourt les qua
     X, Y = np.meshgrid(np.arange(self.game.width), np.arange(self.game.height))
     self.walls = (X % 2 == 0) | (Y % 2 == 0)
 Ce code utilise la fonction meshgrid de la bibliothèque `Numpy` pour créer deux tableaux bidimensionnels `X` et `Y`, qui représentent les valeurs de coordonnées dans les directions horizontale et verticale, respectivement. Les formes de `X` et `Y` sont toutes deux `(h, w)`, c'est-à-dire h lignes et w colonnes. Ici, h et w représentent respectivement la hauteur et la largeur du labyrinthe.
-![Example de la structure de X et Y](img/image001.png)
+![Example de la structure de X et Y](img/image001.png)  
 L'instruction suivante, `(X % 2 == 0) | (Y % 2 == 0)`, effectue une opération logique OU élément par élément sur ces deux tableaux pour obtenir un tableau booléen qui représente les positions qui doivent être définies comme obstacles. Pour un point `(i, j)` sur le plan bidimensionnel, si ses coordonnées horizontale et verticale sont toutes deux paires, alors il s'agit d'un mur dans le labyrinthe. Par conséquent, le code génère des obstacles dans le labyrinthe de cette manière suivante :
-Les 1 : Des murs
-Les 0 : Des espaces accessibles
-Les bords comprennent que des 1.
-Les 0 sont entournés par les 1.             ![labryinthe généré](img/image010.png)
+Les 1 : Des murs  
+Les 0 : Des espaces accessibles  
+Les bords comprennent que des 1.  
+Les 0 sont entournés par les 1.     
+![labryinthe généré](img/image010.png)  
+
+          while True:
+              begin_j, begin_i = np.random.randint(
+                  0, self.game.height
+              ), np.random.randint(0, self.game.width)
+              if begin_j % 2 and begin_i % 2:
+                  break
+              print(begin_j, begin_i)
+          visited_island = {(begin_j, begin_i)}
+          visited_path = set()
+          to_visit = []  
+Ce code fait l’initiation pour démarrer la boucle qui génère des murs :  
+- La boucle While génère une position initiale `(begin_j, begin_i)` qui est assurée grâce à la boucle d’être située à la position dont la valeur corresponde est `0` (l’espace accessible).  
+- Création d’un dictionnaire `visited_island` pour enregistrer des points (islands) parcourus. Le premier élément dedans est donc le point de départ `(begin_j, begin_i)`.  
+- Création d’un ensemble vide `visited_path` pour enregistrer des chemins entre des islands.  
+          
 
 
