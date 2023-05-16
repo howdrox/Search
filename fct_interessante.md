@@ -63,12 +63,16 @@ Plus précisément, pour la position actuelle `(j, i)`, le code parcourt les qua
 Ce code utilise la fonction meshgrid de la bibliothèque `Numpy` pour créer deux tableaux bidimensionnels `X` et `Y`, qui représentent les valeurs de coordonnées dans les directions horizontale et verticale, respectivement. Les formes de `X` et `Y` sont toutes deux `(h, w)`, c'est-à-dire h lignes et w colonnes. Ici, h et w représentent respectivement la hauteur et la largeur du labyrinthe.
 ![Example de la structure de X et Y](img/image001.png)  
 L'instruction suivante, `(X % 2 == 0) | (Y % 2 == 0)`, effectue une opération logique OU élément par élément sur ces deux tableaux pour obtenir un tableau booléen qui représente les positions qui doivent être définies comme obstacles. Pour un point `(i, j)` sur le plan bidimensionnel, si ses coordonnées horizontale et verticale sont toutes deux paires, alors il s'agit d'un mur dans le labyrinthe. Par conséquent, le code génère des obstacles dans le labyrinthe de cette manière suivante :
-*Les 1 : Des murs*  
-*Les 0 : Des espaces accessibles*  
-*Les bords comprennent que des 1.*  
-*Les 0 sont entournés par les 1.*     
-![labyrinthe généré](img/image010.png)  
 
+<center> *Les 1 : Des murs* </center>    
+<center> *Les 0 : Des espaces accessibles* </center>    
+<center> *Les bords comprennent que des 1.* </center>   
+<center> *Les 0 sont entournés par les 1.* </center>   
+
+<div style="text-align: center;">  
+![labyrinthe généré](img/image010.png)  
+</div>  
+     
 ***
 
           while True:
@@ -110,8 +114,10 @@ Ce code réalise les étapes répétitives pour que toutes les positions sur la 
 - Ajouter à la liste des positions à visiter toutes les positions voisines non visitées de la position actuelle, et marquer leur noeud parent comme la coordonnée de la position actuelle (fonction `mark_to_visit`).  
 *A noter que* quel que soit la position de `visiting_cood` par rapport au `parent_cood`, ces trois positions traitées dans une opération vérifient (réalisé par `detect_j, detect_i = np.array(visiting_cood) * 2 - np.array(parent_cood))` :   
 
+<div style="text-align: center;">  
 | `parent_cood` | `visiting_cood` | `detect_j,i` |   
 |     :----:    |      :----:     |    :----:    |   
+</div>  
 
 ***
 
