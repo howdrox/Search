@@ -124,6 +124,6 @@ Ce code réalise les étapes répétitives pour que toutes les positions sur la 
 <img src="img/image024.png" alt="..." width="282" height="184">  
 
 *Cet algorithme finit quand il n'y a plus de blocs bleus dans le labyrinthe.*  
-*Et les blocks jeunes et oranges deviennet des chemins accessibles.*
+*Et les blocks jaunes et oranges deviennet des chemins accessibles.*
 
 
