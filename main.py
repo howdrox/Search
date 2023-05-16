@@ -694,7 +694,9 @@ class Board:
         return res
 
     def manhattan(self, node1, node2):
-        """Returns the manhattan distance between two nodes."""
+        """
+        Returns the manhattan distance between two nodes.
+        """
         return abs(node1[0] - node2[0]) + abs(node1[1] - node2[1])
 
     def check_walls(self, j_test, i_test):
