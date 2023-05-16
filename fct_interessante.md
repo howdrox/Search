@@ -83,7 +83,7 @@ L'instruction suivante, `(X % 2 == 0) | (Y % 2 == 0)`, effectue une opération l
           to_visit = []  
           
 Ce code fait l’initiation pour démarrer la boucle qui génère des murs :  
-- La boucle While génère une position initiale `(begin_j, begin_i)` qui est assurée grâce à la boucle d’être située à la position dont la valeur corresponde est `0` (l’espace accessible).  
+- La boucle `While` génère une position initiale `(begin_j, begin_i)` qui est assurée grâce à la boucle d’être située à la position dont la valeur corresponde est `0` (l’espace accessible).  
 - Création d’un dictionnaire `visited_island` pour enregistrer des points (islands) parcourus. Le premier élément dedans est donc le point de départ `(begin_j, begin_i)`.  
 - Création d’un ensemble vide `visited_path` pour enregistrer des chemins entre des islands.  
 - Création d’une liste vide `to_visit` pour enregistrer des points suivants à parcourir.   
