@@ -356,7 +356,7 @@ class Player(Person):
             self.game.root.bind(
                 f"<KeyRelease-{key}>", lambda e: self.key_speed_cancel(e.keysym)
             )
-        attack_key = "a" if self.id == 1 else "!"
+        attack_key = "a" if self.id == 1 else "p"
         self.game.root.bind(f"<KeyPress-{attack_key}>", lambda e: self.shoot(e.keysym))
 
     def key_speed_set(self, k):
