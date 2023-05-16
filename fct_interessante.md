@@ -117,12 +117,8 @@ Ce code réalise les étapes répétitives pour que toutes les positions sur la 
 
 *Voici une visualisation simple décrivant une première opération de l’algorithme :*  
 
-<img src="img/image011.png" alt="étape1" width="282" height="184">
-<img src="img/image014.png" alt="étape2" width="282" height="184">
-<img src="img/image017.png" alt="étape3" width="282" height="184">  
-<img src="img/image018.png" alt="..." width="282" height="184">
-<img src="img/image020.png" alt="..." width="282" height="184">
-<img src="img/image024.png" alt="..." width="282" height="184">  
+<img src="img/image011.png" alt="étape1" width="282" height="184"><img src="img/image014.png" alt="étape2" width="282" height="184"><img src="img/image017.png" alt="étape3" width="282" height="184">  
+<img src="img/image018.png" alt="..." width="282" height="184"><img src="img/image020.png" alt="..." width="282" height="184"><img src="img/image024.png" alt="..." width="282" height="184">
 
 *Cet algorithme finit quand il n'y a plus de blocs bleus dans le labyrinthe.*  
 *Et les blocs jaunes et oranges deviennet des chemins accessibles.*
