@@ -113,10 +113,10 @@ Ce code réalise les étapes répétitives pour que toutes les positions sur la 
 
 ***
 
-*Voici une visualisation simple décrivant une première opération de l’algorithme : *
-![étape1](img/image011.png)
-![étape2](img/image014.png)
-![étape3](img/image017.png)
+*Voici une visualisation simple décrivant une première opération de l’algorithme : *  
+<img src="img/image011.png" alt="étape1" width="282" height="184">
+<img src="img/image014.png" alt="étape2" width="282" height="184">
+<img src="img/image017.png" alt="étape3" width="282" height="184">
 
           
 
