@@ -120,6 +120,7 @@ Ce code réalise les étapes répétitives pour que toutes les positions sur la 
 <img src="img/image014.png" alt="étape2" width="282" height="184">
 <img src="img/image017.png" alt="étape3" width="282" height="184">  
 <img src="img/image018.png" alt="..." width="282" height="184">
+<img src="img/image020.png" alt="..." width="282" height="184">
 
           
 
