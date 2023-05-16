@@ -57,7 +57,11 @@ Plus précisément, pour la position actuelle `(j, i)`, le code parcourt les qua
     X, Y = np.meshgrid(np.arange(self.game.width), np.arange(self.game.height))
     self.walls = (X % 2 == 0) | (Y % 2 == 0)
 Ce code utilise la fonction meshgrid de la bibliothèque `Numpy` pour créer deux tableaux bidimensionnels `X` et `Y`, qui représentent les valeurs de coordonnées dans les directions horizontale et verticale, respectivement. Les formes de `X` et `Y` sont toutes deux `(h, w)`, c'est-à-dire h lignes et w colonnes. Ici, h et w représentent respectivement la hauteur et la largeur du labyrinthe.
-![Example de la structure de X et Y](img/image001.png))
-
+![Example de la structure de X et Y](img/image001.png)
+L'instruction suivante, `(X % 2 == 0) | (Y % 2 == 0)`, effectue une opération logique OU élément par élément sur ces deux tableaux pour obtenir un tableau booléen qui représente les positions qui doivent être définies comme obstacles. Pour un point `(i, j)` sur le plan bidimensionnel, si ses coordonnées horizontale et verticale sont toutes deux paires, alors il s'agit d'un mur dans le labyrinthe. Par conséquent, le code génère des obstacles dans le labyrinthe de cette manière suivante :
+Les 1 : Des murs
+Les 0 : Des espaces accessibles
+Les bords comprennent que des 1.
+Les 0 sont entournés par les 1.             ![labryinthe généré](img/image010.png)
 
 
