@@ -25,3 +25,9 @@ Les joueurs 1 et 2 peuvent se promener dans un labirynthe et tirer des projectil
 Pour telecharger ces dépendences, il suffit d'executer la commande suivante dans un terminal :
 
 ```pip install <nom de la dépendence>```
+
+## Autheurs
+- KUSNO Louis
+- SUN Jixiang
+- GUO Yizuo
+
